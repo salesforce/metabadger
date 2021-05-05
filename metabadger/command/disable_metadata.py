@@ -9,7 +9,8 @@ instance_list = utils.discover_instances(ec2_resource)
 
 
 @click.command(short_help="Disable the IMDS service on EC2 instances")
-def disable_metadata():
+@click.option("--dry-run", "-d", is_flag=True, default=False, help="Dry run of disabling the metadata service")
+def disable_metadata(dry_run: bool):
     if utils.discover_roles(ec2_client)[1]["Role_Count"] > 0:
         click.confirm(
             utils.convert_red(
@@ -17,15 +18,21 @@ def disable_metadata():
             ),
             abort=True,
         )
-    for instance in instance_list:
-        try:
-            response = ec2_client.modify_instance_metadata_options(
-                InstanceId=instance, HttpEndpoint="disabled"
-            )
-            status = utils.convert_green("SUCCESS")
-        except:
-            status = utils.convert_red("FAILED")
-        print(f"IMDS Disabled for {instance:<80} {status:>22}")
+    if dry_run:
+        utils.print_yellow(
+            "Running in dry run mode, this will NOT make any changes to your metadata service"
+        )
+        for instance in instance_list:
+            status = utils.convert_yellow("SUCCESS")
+            print(f"IMDS Disabled for {instance:<80} {status:>22}")
+    else:    
+        for instance in instance_list:
+            try:
+                response = ec2_client.modify_instance_metadata_options(
+                    InstanceId=instance, HttpEndpoint="disabled"
+                )
+                status = utils.convert_green("SUCCESS")
+            except:
+                status = utils.convert_red("FAILED")
+            print(f"IMDS Disabled for {instance:<80} {status:>22}")
 
-
-# @click.option("--disable-metadata", "-d", default=False, is_flag=True, help="Disable instances on instances specific")

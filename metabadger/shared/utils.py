@@ -44,6 +44,9 @@ def discover_roles(ec2_client: object):
     short_summary = {"Role_Count": role_count, "Instance_Count": instance_count}
     return instance_role_summary, short_summary
 
+def print_yellow(string):
+    """Print yellow text"""
+    print(f"{Fore.YELLOW}{string}{END}")
 
 def print_green(string):
     """Print green text"""
@@ -69,6 +72,9 @@ def convert_green(string):
     """Return green text"""
     return f"{Fore.GREEN}{string}{END}"
 
+def convert_yellow(string):
+    """Return green text"""
+    return f"{Fore.YELLOW}{string}{END}"
 
 def pretty_grid_keys(output: dict):
     """Print grid keys from dictionary"""

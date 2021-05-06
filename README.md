@@ -42,15 +42,15 @@ Commands:
 ## Commands
 <!-- commands -->
 
-* discover-metadata 
+**discover-metadata**
 
 A summary of your overall instance metadata service usage including which version and an overall enforcement percentage. Using these numbers will help you understand the overall posture of how hardened your metadata usage is and where you're enforcing v2 vs v1.
 
-* discover-role-usage
+**discover-role-usage**
 
 A summary of instances and the roles that they are using, this will give you a good idea of the caution you must take when making updates to the metadata service itself.
 
-* harden-metadata
+**harden-metadata**
 
 The ability to modify the instances to use either metadata v1 or v2 and to get an understanding of how many instances would be modified by running a dry run mode.
 
@@ -59,7 +59,7 @@ Options:
 --dry-run : Setting this option will let you see 
 --v1 : If you need to, you can supply this flag to revert instances to keep HttpTokens as optional letting you use v1
 
-* disable-metadata
+**disable-metadata**
 
 Use this command to completely disable the metadata servie on instances.
 

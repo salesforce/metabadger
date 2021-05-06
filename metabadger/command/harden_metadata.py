@@ -10,9 +10,28 @@ instance_list = utils.discover_instances(ec2_resource)
 
 
 @click.command(short_help="Harden the AWS instance metadata service from v1 to v2")
-@click.option("--dry-run", "-d", is_flag=True, default=False, help="Dry run of hardening metadata changes")
-@click.option("--v1", "-v1", is_flag=True, default=False, help="Enforces v1 of the metadata service")
-def harden_metadata(dry_run: bool, v1: bool):
+@click.option(
+    "--dry-run",
+    "-d",
+    is_flag=True,
+    default=False,
+    help="Dry run of hardening metadata changes",
+)
+@click.option(
+    "--v1",
+    "-v1",
+    is_flag=True,
+    default=False,
+    help="Enforces v1 of the metadata service",
+)
+@click.option(
+    "--input-file",
+    "-i",
+    type=click.Path(exists=True),
+    required=False,
+    help="Path of csv file of instances to harden IMDS for",
+)
+def harden_metadata(dry_run: bool, v1: bool, input_file):
     if utils.discover_roles(ec2_client)[1]["Role_Count"] > 0:
         click.confirm(
             utils.convert_red(
@@ -27,8 +46,10 @@ def harden_metadata(dry_run: bool, v1: bool):
         for instance in instance_list:
             status = utils.convert_yellow("SUCCESS")
             print(f"IMDS hardened to v2 for {instance:<80} {status:>22}")
-    for instance in instance_list:
-        if not v1:
+    elif input_file:
+        data = utils.read_from_csv(input_file)
+        print(f"Reading instances from input csv file\n{data}")
+        for instance in data:
             try:
                 response = ec2_client.modify_instance_metadata_options(
                     InstanceId=instance, HttpTokens="required", HttpEndpoint="enabled"
@@ -37,14 +58,28 @@ def harden_metadata(dry_run: bool, v1: bool):
             except:
                 status = utils.convert_red("FAILED")
             print(f"IMDSv2 Enforced for {instance:<80} {status:>20}")
-        elif v1:
-            try:
-                response = ec2_client.modify_instance_metadata_options(
-                    InstanceId=instance, HttpTokens="optional", HttpEndpoint="enabled"
-                )
-                status = utils.convert_green("SUCCESS")
-            except:
-                status = utils.convert_red("FAILED")
-            print(f"IMDSv1 Enforced for {instance:<80} {status:>20}")
-
-
+    elif not input_file:
+        for instance in instance_list:
+            if not v1:
+                try:
+                    response = ec2_client.modify_instance_metadata_options(
+                        InstanceId=instance,
+                        HttpTokens="required",
+                        HttpEndpoint="enabled",
+                    )
+                    status = utils.convert_green("SUCCESS")
+                except:
+                    status = utils.convert_red("FAILED")
+                print(f"IMDSv2 Enforced for {instance:<80} {status:>20}")
+            elif v1:
+                utils.print_yellow("Modifying instance metadata back to v1")
+                try:
+                    response = ec2_client.modify_instance_metadata_options(
+                        InstanceId=instance,
+                        HttpTokens="optional",
+                        HttpEndpoint="enabled",
+                    )
+                    status = utils.convert_green("SUCCESS")
+                except:
+                    status = utils.convert_red("FAILED")
+                print(f"IMDSv1 Enforced for {instance:<80} {status:>20}")

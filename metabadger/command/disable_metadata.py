@@ -9,8 +9,21 @@ instance_list = utils.discover_instances(ec2_resource)
 
 
 @click.command(short_help="Disable the IMDS service on EC2 instances")
-@click.option("--dry-run", "-d", is_flag=True, default=False, help="Dry run of disabling the metadata service")
-def disable_metadata(dry_run: bool):
+@click.option(
+    "--dry-run",
+    "-d",
+    is_flag=True,
+    default=False,
+    help="Dry run of disabling the metadata service",
+)
+@click.option(
+    "--input-file",
+    "-i",
+    type=click.Path(exists=True),
+    required=False,
+    help="Path of csv file of instances to disable IMDS for",
+)
+def disable_metadata(dry_run: bool, input_file):
     if utils.discover_roles(ec2_client)[1]["Role_Count"] > 0:
         click.confirm(
             utils.convert_red(
@@ -18,14 +31,26 @@ def disable_metadata(dry_run: bool):
             ),
             abort=True,
         )
-    if dry_run:
+    if input_file:
+        data = utils.read_from_csv(input_file)
+        print(f"Reading instances from input csv file\n{data}")
+        for instance in data:
+            try:
+                response = ec2_client.modify_instance_metadata_options(
+                    InstanceId=instance, HttpEndpoint="disabled"
+                )
+                status = utils.convert_green("SUCCESS")
+            except:
+                status = utils.convert_red("FAILED")
+            print(f"IMDS Disabled for {instance:<80} {status:>22}")
+    elif dry_run:
         utils.print_yellow(
             "Running in dry run mode, this will NOT make any changes to your metadata service"
         )
         for instance in instance_list:
             status = utils.convert_yellow("SUCCESS")
             print(f"IMDS Disabled for {instance:<80} {status:>22}")
-    else:    
+    else:
         for instance in instance_list:
             try:
                 response = ec2_client.modify_instance_metadata_options(
@@ -35,4 +60,3 @@ def disable_metadata(dry_run: bool):
             except:
                 status = utils.convert_red("FAILED")
             print(f"IMDS Disabled for {instance:<80} {status:>22}")
-

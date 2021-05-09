@@ -50,36 +50,14 @@ def harden_metadata(dry_run: bool, v1: bool, input_file):
         data = utils.read_from_csv(input_file)
         print(f"Reading instances from input csv file\n{data}")
         for instance in data:
-            try:
-                response = ec2_client.modify_instance_metadata_options(
-                    InstanceId=instance, HttpTokens="required", HttpEndpoint="enabled"
-                )
-                status = utils.convert_green("SUCCESS")
-            except:
-                status = utils.convert_red("FAILED")
-            print(f"IMDSv2 Enforced for {instance:<80} {status:>20}")
+            utils.metamodify(ec2_client, "V2 Enforced", "required", "enabled", instance)
     elif not input_file:
         for instance in instance_list:
             if not v1:
-                try:
-                    response = ec2_client.modify_instance_metadata_options(
-                        InstanceId=instance,
-                        HttpTokens="required",
-                        HttpEndpoint="enabled",
-                    )
-                    status = utils.convert_green("SUCCESS")
-                except:
-                    status = utils.convert_red("FAILED")
-                print(f"IMDSv2 Enforced for {instance:<80} {status:>20}")
+                utils.metamodify(
+                    ec2_client, "V2 Enforced", "required", "enabled", instance
+                )
             elif v1:
-                utils.print_yellow("Modifying instance metadata back to v1")
-                try:
-                    response = ec2_client.modify_instance_metadata_options(
-                        InstanceId=instance,
-                        HttpTokens="optional",
-                        HttpEndpoint="enabled",
-                    )
-                    status = utils.convert_green("SUCCESS")
-                except:
-                    status = utils.convert_red("FAILED")
-                print(f"IMDSv1 Enforced for {instance:<80} {status:>20}")
+                utils.metamodify(
+                    ec2_client, "V1 Default Set", "optional", "enabled", instance
+                )

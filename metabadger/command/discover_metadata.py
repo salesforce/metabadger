@@ -8,7 +8,14 @@ instance_list = utils.discover_instances(ec2_resource)
 
 
 @click.command(short_help="Discover summary of IMDS service usage within EC2")
-def discover_metadata():
+@click.option(
+    "--json",
+    "-j",
+    is_flag=True,
+    default=False,
+    help="Get metadata summary in JSON format",
+)
+def discover_metadata(json):
     imds_enabled = 0
     imds_disabled = 0
     v1_available = 0
@@ -27,15 +34,22 @@ def discover_metadata():
         if metadata_options.get("HttpTokens") == "required":
             v2_required += 1
     enforcement = float(v2_required / total_instances) * 100
-    percent_enforcement_v2 = f"{enforcement:.2f}"
-    return utils.pretty_metadata_summary(
-        imds_enabled,
-        imds_disabled,
-        v1_available,
-        v2_required,
-        total_instances,
-        percent_enforcement_v2,
-    )
-
-
-# @click.option("--discover-metadata", "-dm", default=False, is_flag=True, help="Get metdata summary of all instances in condensed format")
+    percent_enforcement_v2 = f"{enforcement:.2f}%"
+    if not json:
+        return utils.pretty_metadata_summary(
+            imds_enabled,
+            imds_disabled,
+            v1_available,
+            v2_required,
+            total_instances,
+            percent_enforcement_v2,
+        )
+    elif json:
+        return utils.pretty_metadata_json(
+            imds_enabled,
+            imds_disabled,
+            v1_available,
+            v2_required,
+            total_instances,
+            percent_enforcement_v2,
+        )

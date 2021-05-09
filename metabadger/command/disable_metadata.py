@@ -35,14 +35,7 @@ def disable_metadata(dry_run: bool, input_file):
         data = utils.read_from_csv(input_file)
         print(f"Reading instances from input csv file\n{data}")
         for instance in data:
-            try:
-                response = ec2_client.modify_instance_metadata_options(
-                    InstanceId=instance, HttpEndpoint="disabled"
-                )
-                status = utils.convert_green("SUCCESS")
-            except:
-                status = utils.convert_red("FAILED")
-            print(f"IMDS Disabled for {instance:<80} {status:>22}")
+            utils.metamodify(ec2_client, "disabled", "optional", "disabled", instance)
     elif dry_run:
         utils.print_yellow(
             "Running in dry run mode, this will NOT make any changes to your metadata service"
@@ -52,11 +45,4 @@ def disable_metadata(dry_run: bool, input_file):
             print(f"IMDS Disabled for {instance:<80} {status:>22}")
     else:
         for instance in instance_list:
-            try:
-                response = ec2_client.modify_instance_metadata_options(
-                    InstanceId=instance, HttpEndpoint="disabled"
-                )
-                status = utils.convert_green("SUCCESS")
-            except:
-                status = utils.convert_red("FAILED")
-            print(f"IMDS Disabled for {instance:<80} {status:>22}")
+            utils.metamodify(ec2_client, "disabled", "optional", "disabled", instance)

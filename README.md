@@ -17,6 +17,7 @@ Purpose and functionality
 ## Usage
 
 <!-- usage -->
+
 ```sh-session
 $ git clone https://github.com/salesforce/metabadger
 $ cd metabadger
@@ -39,7 +40,9 @@ Commands:
   harden-metadata      Harden the AWS instance metadata service from v1 to v2
 ```
 <!-- usagestop -->
+
 ## Commands
+
 <!-- commands -->
 
 **discover-metadata**
@@ -54,17 +57,18 @@ A summary of instances and the roles that they are using, this will give you a g
 
 The ability to modify the instances to use either metadata v1 or v2 and to get an understanding of how many instances would be modified by running a dry run mode.
 
-Options:
---input-file : Provide a csv formatted file containing a list of instances that you'd like to harden the metadata service on, to v2 
---dry-run : Setting this option will let you see 
+Options:\
+--input-file : Provide a csv formatted file containing a list of instances that you'd like to harden the metadata service on, to v2\
+--dry-run : Setting this option will let you see\
 --v1 : If you need to, you can supply this flag to revert instances to keep HttpTokens as optional letting you use v1
 
 **disable-metadata**
 
 Use this command to completely disable the metadata servie on instances.
 
-Options:
---input-file : Provide a csv formatted file containing a list of instances that you'd like to disable the metadata service on
---dry-run : Setting this option will let you see 
+Options:\
+--input-file : Provide a csv formatted file containing a list of instances that you'd like to disable the metadata service on\
+--dry-run : Setting this option will let you see
 
+<!-- commandstop -->
 

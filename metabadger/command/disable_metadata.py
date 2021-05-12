@@ -23,11 +23,20 @@ instance_list = utils.discover_instances(ec2_resource)
     required=False,
     help="Path of csv file of instances to disable IMDS for",
 )
-def disable_metadata(dry_run: bool, input_file):
+@click.option(
+    "--tags",
+    "-t",
+    "tags",
+    type=str,
+    default="",
+    help="A comma seperated list of tags to apply the hardening setting to",
+    callback=utils.click_validate_tag_alphanumeric,
+)
+def disable_metadata(dry_run: bool, input_file, tags):
     if utils.discover_roles(ec2_client)[1]["Role_Count"] > 0:
         click.confirm(
             utils.convert_red(
-                f"Warning: One or more of the instances in {ec2_client.meta.region_name} is currently using IMDS, do you want to continue?"
+                f"Warning: One or more of the instances in {ec2_client.meta.region_name} you want to update has a role attached, do you want to continue?"
             ),
             abort=True,
         )
@@ -43,6 +52,20 @@ def disable_metadata(dry_run: bool, input_file):
         for instance in instance_list:
             status = utils.convert_yellow("SUCCESS")
             print(f"IMDS Disabled for {instance:<80} {status:>22}")
+    elif tags:
+        tag_apply_count = 0
+        utils.print_yellow("Only applying hardening to the following tagged instances")
+        print(f"Tags: {tags}")
+        for instance in instance_list:
+            if any(
+                value in utils.get_instance_tags(ec2_client, instance) for value in tags
+            ):
+                utils.metamodify(
+                    ec2_client, "disabled", "optional", "disabled", instance
+                )
+                tag_apply_count += 1
+        if tag_apply_count < 1:
+            print(f"No instances with this tag found, no changes were made")
     else:
         for instance in instance_list:
             utils.metamodify(ec2_client, "disabled", "optional", "disabled", instance)

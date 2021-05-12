@@ -1,5 +1,7 @@
 """ Additional utils """
 import csv
+import click
+import json
 import pandas as pd
 from colorama import Fore, Back
 from tabulate import tabulate
@@ -10,6 +12,7 @@ END = "\033[0m"
 
 
 def discover_instances(ec2: object):
+    """Get a list of instances, both running and stopped"""
     instances = ec2.instances.filter(
         Filters=[{"Name": "instance-state-name", "Values": ["running", "stopped"]}]
     )
@@ -19,7 +22,22 @@ def discover_instances(ec2: object):
     return instance_list
 
 
+def metamodify(ec2_client, action: str, httptoken: str, status: str, instance_id: str):
+    """Helper function to change instance metadata status"""
+    try:
+        response = ec2_client.modify_instance_metadata_options(
+            InstanceId=instance_id,
+            HttpTokens=httptoken,
+            HttpEndpoint=status,
+        )
+        status = convert_green("SUCCESS")
+    except:
+        status = convert_red("FAILED")
+    print(f"IMDS updated : {action} for {instance_id:<80} {status:>20}")
+
+
 def discover_roles(ec2_client: object):
+    """Get a summary of roles attached to instances"""
     instances = ec2_client.describe_instances()
     role_count = 0
     instance_count = 0
@@ -44,6 +62,38 @@ def discover_roles(ec2_client: object):
         }
     short_summary = {"Role_Count": role_count, "Instance_Count": instance_count}
     return instance_role_summary, short_summary
+
+
+def get_instance_tags(ec2_client: object, instance_id: str):
+    """Get instance tags to parse through for selective hardening"""
+    tag_values = []
+    tags = ec2_client.describe_tags(
+        Filters=[
+            {
+                "Name": "resource-id",
+                "Values": [
+                    instance_id,
+                ],
+            },
+        ],
+    )["Tags"]
+    for tag in tags:
+        tag_values.append(tag["Value"])
+    return tag_values
+
+
+def click_validate_tag_alphanumeric(ctx, param, value):
+    if value is not None:
+        try:
+            if value == "":
+                return []
+            else:
+                tag_values_to_check = value.split(",")
+                return tag_values_to_check
+        except ValueError:
+            raise click.BadParameter(
+                "Supply the list of tag names to include for hardening in a comma separated string."
+            )
 
 
 def print_yellow(string):
@@ -88,6 +138,7 @@ def pretty_grid_keys(output: dict):
 
 
 def read_from_csv(file):
+    """Read file from a path and covert the csv into a list"""
     with open(file) as f:
         reader = csv.reader(f)
         data = list(reader)
@@ -126,3 +177,23 @@ def pretty_metadata_summary(
             tablefmt="grid",
         )
     )
+
+
+def pretty_metadata_json(
+    enabled_instances,
+    disabled_instances,
+    v1_enabled_instances,
+    v2_enforced_instances,
+    total_instances,
+    percent_enforcement_v2,
+):
+    """Generate a JSON of metadata usage"""
+    json_summary = {
+        "enabled_instances": enabled_instances,
+        "disabled_instances": disabled_instances,
+        "v1_enabled_instances": v1_enabled_instances,
+        "v2_enforced_instances": v2_enforced_instances,
+        "total_instances": total_instances,
+        "percent_enforcement_v2": percent_enforcement_v2,
+    }
+    print(json.dumps(json_summary, indent=4, sort_keys=True))

@@ -36,6 +36,8 @@ def discover_metadata(json, profile: str):
             v1_available += 1
         if metadata_options.get("HttpTokens") == "required":
             v2_required += 1
+    if total_instances == 0:
+        total_instances = 1
     enforcement = float(v2_required / total_instances) * 100
     percent_enforcement_v2 = f"{enforcement:.2f}%"
     if not json:

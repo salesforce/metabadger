@@ -55,7 +55,6 @@ setuptools.setup(
     ],
     entry_points={"console_scripts": "metabadger=metabadger.bin.cli:main"},
     zip_safe=True,
-    keywords='aws iam roles policy policies privileges security',
+    keywords='aws iam metadata roles policy policies privileges security',
     python_requires='>=3.6',
-    # scripts=['cloudsplaining/bin/cloudsplaining'],
 )

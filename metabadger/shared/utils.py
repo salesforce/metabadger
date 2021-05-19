@@ -56,10 +56,11 @@ def discover_roles(ec2_client: object):
             role_count += 1
         except:
             role_name = "N/A"
-        instance_role_summary[instance_id] = {
-            "Instance_Name": instance_name,
-            "Instance_Role": role_name,
-        }
+        if role_name != "N/A":
+            instance_role_summary[instance_id] = {
+                "Instance_Name": instance_name,
+                "Instance_Role": role_name,
+            }
     short_summary = {"Role_Count": role_count, "Instance_Count": instance_count}
     return instance_role_summary, short_summary
 

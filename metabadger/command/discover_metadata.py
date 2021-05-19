@@ -3,9 +3,6 @@ import click
 from tabulate import tabulate
 from metabadger.shared import utils, aws_auth
 
-ec2_resource = aws_auth.get_boto3_resource("ec2")
-instance_list = utils.discover_instances(ec2_resource)
-
 
 @click.command(short_help="Discover summary of IMDS service usage within EC2")
 @click.option(
@@ -15,7 +12,12 @@ instance_list = utils.discover_instances(ec2_resource)
     default=False,
     help="Get metadata summary in JSON format",
 )
-def discover_metadata(json):
+@click.option(
+    "--profile", "-p", type=str, required=False, help="Specify the AWS IAM profile."
+)
+def discover_metadata(json, profile: str):
+    ec2_resource = aws_auth.get_boto3_resource(profile=profile, service="ec2")
+    ec2_client = aws_auth.get_boto3_client(profile=profile, service="ec2")
     imds_enabled = 0
     imds_disabled = 0
     v1_available = 0

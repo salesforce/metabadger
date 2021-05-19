@@ -3,10 +3,6 @@ import click
 from tabulate import tabulate
 from metabadger.shared import utils, aws_auth
 
-ec2_resource = aws_auth.get_boto3_resource("ec2")
-ec2_client = aws_auth.get_boto3_client("ec2")
-instance_list = utils.discover_instances(ec2_resource)
-
 
 @click.command(short_help="Disable the IMDS service on EC2 instances")
 @click.option(
@@ -32,7 +28,13 @@ instance_list = utils.discover_instances(ec2_resource)
     help="A comma seperated list of tags to apply the hardening setting to",
     callback=utils.click_validate_tag_alphanumeric,
 )
-def disable_metadata(dry_run: bool, input_file, tags):
+@click.option(
+    "--profile", "-p", type=str, required=False, help="Specify the AWS IAM profile."
+)
+def disable_metadata(dry_run: bool, input_file: str, tags: str, profile: str):
+    ec2_resource = aws_auth.get_boto3_resource(profile=profile, service="ec2")
+    ec2_client = aws_auth.get_boto3_client(profile=profile, service="ec2")
+    instance_list = utils.discover_instances(ec2_resource)
     if utils.discover_roles(ec2_client)[1]["Role_Count"] > 0:
         click.confirm(
             utils.convert_red(

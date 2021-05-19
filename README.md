@@ -38,7 +38,7 @@ Metabadger requires an IAM role or credentials with the following permission:
 
 When making changes to the Instance Metadata service, you should be cautious and follow additional guidance from AWS on how to safely upgrade to version 2. Metabadger was designed to assist you with this process to further secure your compute infrastructure in AWS.
 
-https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html
+[AWS Best Practice Guide on Updating to IMDSv2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html)
 
 
 <!-- requirementsstop -->

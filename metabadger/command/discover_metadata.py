@@ -18,6 +18,7 @@ from metabadger.shared import utils, aws_auth
 def discover_metadata(json, profile: str):
     ec2_resource = aws_auth.get_boto3_resource(profile=profile, service="ec2")
     ec2_client = aws_auth.get_boto3_client(profile=profile, service="ec2")
+    instance_list = utils.discover_instances(ec2_resource)
     imds_enabled = 0
     imds_disabled = 0
     v1_available = 0

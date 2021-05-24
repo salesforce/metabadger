@@ -83,31 +83,47 @@ Commands:
 
 A summary of your overall instance metadata service usage including which version and an overall enforcement percentage. Using these numbers will help you understand the overall posture of how hardened your metadata usage is and where you're enforcing v2 vs v1.
 
-Options:\
---json : a JSON summary of the metadata usage breakdown
+```
+Options:
+  -j, --json          Get metadata summary in JSON format
+  -r, --region TEXT   Specify which AWS region you will perform this command in
+  -p, --profile TEXT  Specify the AWS IAM profile.
+```
 
 **discover-role-usage**
 
 A summary of instances and the roles that they are using, this will give you a good idea of the caution you must take when making updates to the metadata service itself.
 
+```
+Options:
+  -p, --profile TEXT  Specify the AWS IAM profile.
+  -r, --region TEXT   Specify which AWS region you will perform this command in
+```
 **harden-metadata**
 
 The ability to modify the instances to use either metadata v1 or v2 and to get an understanding of how many instances would be modified by running a dry run mode.
 
-Options:\
---input-file : Provide a csv formatted file containing a list of instances that you'd like to harden the metadata service on, to v2\
---dry-run : Setting this option will let you see\
---v1 : If you need to, you can supply this flag to revert instances to keep HttpTokens as optional letting you use v1
---tags : You can pass a comma seperated list of tags to the CLI to harden instances with only those tags
+```
+Options:
+  -d, --dry-run          Dry run of hardening metadata changes
+  -v1, --v1              Enforces v1 of the metadata service
+  -i, --input-file PATH  Path of csv file of instances to harden IMDS for
+  -t, --tags TEXT        A comma seperated list of tags to apply the hardening setting to
+  -r, --region TEXT      Specify which AWS region you will perform this command in
+  -p, --profile TEXT     Specify the AWS IAM profile.
+```
 
 **disable-metadata**
 
 Use this command to completely disable the metadata servie on instances.
 
-Options:\
---input-file : Provide a csv formatted file containing a list of instances that you'd like to disable the metadata service on\
---dry-run : Setting this option will let you see
---tags : You can pass a comma seperated list of tags to the CLI to disable those particular instances only
-
+```
+Options:
+  -d, --dry-run          Dry run of disabling the metadata service
+  -i, --input-file PATH  Path of csv file of instances to disable IMDS for
+  -t, --tags TEXT        A comma seperated list of tags to apply the hardening setting to
+  -r, --region TEXT      Specify which AWS region you will perform this command in
+  -p, --profile TEXT     Specify the AWS IAM profile.
+```
 <!-- commandstop -->
 

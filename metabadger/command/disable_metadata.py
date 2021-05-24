@@ -29,11 +29,26 @@ from metabadger.shared import utils, aws_auth
     callback=utils.click_validate_tag_alphanumeric,
 )
 @click.option(
+    "--region",
+    "-r",
+    "region",
+    type=str,
+    required=False,
+    default="us-west-2",
+    help="Specify which AWS region you will perform this command in",
+)
+@click.option(
     "--profile", "-p", type=str, required=False, help="Specify the AWS IAM profile."
 )
-def disable_metadata(dry_run: bool, input_file: str, tags: str, profile: str):
-    ec2_resource = aws_auth.get_boto3_resource(profile=profile, service="ec2")
-    ec2_client = aws_auth.get_boto3_client(profile=profile, service="ec2")
+def disable_metadata(
+    dry_run: bool, input_file: str, tags: str, profile: str, region: str
+):
+    ec2_resource = aws_auth.get_boto3_resource(
+        region=region, profile=profile, service="ec2"
+    )
+    ec2_client = aws_auth.get_boto3_client(
+        region=region, profile=profile, service="ec2"
+    )
     instance_list = utils.discover_instances(ec2_resource)
     if utils.discover_roles(ec2_client)[1]["Role_Count"] > 0:
         click.confirm(
@@ -42,6 +57,8 @@ def disable_metadata(dry_run: bool, input_file: str, tags: str, profile: str):
             ),
             abort=True,
         )
+    if utils.discover_roles(ec2_client)[1]["Instance_Count"] <= 0:
+        utils.print_yellow(f"No EC2 instances found in region: {region}")
     if input_file:
         data = utils.read_from_csv(input_file)
         print(f"Reading instances from input csv file\n{data}")

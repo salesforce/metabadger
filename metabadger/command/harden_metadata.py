@@ -37,11 +37,26 @@ from metabadger.command import discover_role_usage
     callback=utils.click_validate_tag_alphanumeric,
 )
 @click.option(
+    "--region",
+    "-r",
+    "region",
+    type=str,
+    required=False,
+    default="us-west-2",
+    help="Specify which AWS region you will perform this command in",
+)
+@click.option(
     "--profile", "-p", type=str, required=False, help="Specify the AWS IAM profile."
 )
-def harden_metadata(dry_run: bool, v1: bool, input_file: str, tags: str, profile: str):
-    ec2_resource = aws_auth.get_boto3_resource(profile=profile, service="ec2")
-    ec2_client = aws_auth.get_boto3_client(profile=profile, service="ec2")
+def harden_metadata(
+    dry_run: bool, v1: bool, input_file: str, tags: str, profile: str, region: str
+):
+    ec2_resource = aws_auth.get_boto3_resource(
+        region=region, profile=profile, service="ec2"
+    )
+    ec2_client = aws_auth.get_boto3_client(
+        region=region, profile=profile, service="ec2"
+    )
     instance_list = utils.discover_instances(ec2_resource)
     if utils.discover_roles(ec2_client)[1]["Role_Count"] > 0:
         click.confirm(
@@ -50,6 +65,8 @@ def harden_metadata(dry_run: bool, v1: bool, input_file: str, tags: str, profile
             ),
             abort=True,
         )
+    if utils.discover_roles(ec2_client)[1]["Instance_Count"] <= 0:
+        utils.print_yellow(f"No EC2 instances found in region: {region}")
     if dry_run:
         utils.print_yellow(
             "Running in dry run mode, this will NOT make any changes to your metadata service"
@@ -70,12 +87,17 @@ def harden_metadata(dry_run: bool, v1: bool, input_file: str, tags: str, profile
             if any(
                 value in utils.get_instance_tags(ec2_client, instance) for value in tags
             ):
-                utils.metamodify(
-                    ec2_client, "V2 Enforced", "required", "enabled", instance
-                )
-                tag_apply_count += 1
-        if tag_apply_count < 1:
-            print(f"No instances with this tag found, no changes were made")
+                if not v1:
+                    utils.metamodify(
+                        ec2_client, "V2 Enforced", "required", "enabled", instance
+                    )
+                elif v1:
+                    utils.metamodify(
+                        ec2_client, "V1 Default Set", "optional", "enabled", instance
+                    )
+            tag_apply_count += 1
+            if tag_apply_count < 1:
+                print(f"No instances with this tag found, no changes were made")
     elif not input_file:
         for instance in instance_list:
             if not v1:

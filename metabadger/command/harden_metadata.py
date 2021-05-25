@@ -58,14 +58,14 @@ def harden_metadata(
         region=region, profile=profile, service="ec2"
     )
     instance_list = utils.discover_instances(ec2_resource)
-    if utils.discover_roles(ec2_client)[1]["Role_Count"] > 0:
+    if utils.discover_roles(ec2_client)[1]["role_count"] > 0:
         click.confirm(
             utils.convert_red(
                 f"Warning: One or more of the instances in {ec2_client.meta.region_name} you want to upgrade has a role attached, do you want to continue?"
             ),
             abort=True,
         )
-    if utils.discover_roles(ec2_client)[1]["Instance_Count"] <= 0:
+    if utils.discover_roles(ec2_client)[1]["instance_count"] <= 0:
         utils.print_yellow(f"No EC2 instances found in region: {region}")
     if dry_run:
         utils.print_yellow(
@@ -80,7 +80,6 @@ def harden_metadata(
         for instance in data:
             utils.metamodify(ec2_client, "V2 Enforced", "required", "enabled", instance)
     elif tags:
-        tag_apply_count = 0
         utils.print_yellow("Only applying hardening to the following tagged instances")
         print(f"Tags: {tags}")
         for instance in instance_list:
@@ -95,8 +94,7 @@ def harden_metadata(
                     utils.metamodify(
                         ec2_client, "V1 Default Set", "optional", "enabled", instance
                     )
-            tag_apply_count += 1
-            if tag_apply_count < 1:
+            else:
                 print(f"No instances with this tag found, no changes were made")
     elif not input_file:
         for instance in instance_list:

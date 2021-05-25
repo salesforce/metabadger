@@ -1,5 +1,6 @@
 """Discover EC2 Instance Metadata usage in your AWS account"""
 import click
+from collections import Counter
 from tabulate import tabulate
 from metabadger.shared import utils, aws_auth
 
@@ -32,10 +33,7 @@ def discover_metadata(json, profile: str, region: str):
         region=region, profile=profile, service="ec2"
     )
     instance_list = utils.discover_instances(ec2_resource)
-    imds_enabled = 0
-    imds_disabled = 0
-    v1_available = 0
-    v2_required = 0
+    instance_tracker = []
     total_instances = 0
     if not instance_list:
         utils.print_yellow(f"No instances found in region: {region}")
@@ -44,31 +42,16 @@ def discover_metadata(json, profile: str, region: str):
             total_instances += 1
             instance = ec2_resource.Instance(instance)
             metadata_options = instance.metadata_options
-            if metadata_options.get("HttpEndpoint") == "enabled":
-                imds_enabled += 1
-            if metadata_options.get("HttpEndpoint") == "disabled":
-                imds_disabled += 1
-            if metadata_options.get("HttpTokens") == "optional":
-                v1_available += 1
-            if metadata_options.get("HttpTokens") == "required":
-                v2_required += 1
-        enforcement = float(v2_required / total_instances) * 100
-        percent_enforcement_v2 = f"{enforcement:.2f}%"
+            instance_tracker.append(metadata_options.get("HttpEndpoint"))
+            instance_tracker.append(metadata_options.get("HttpTokens"))
+        instance_options = Counter(instance_tracker)
+        instance_options["instances"] = total_instances
+        enforcement = float(instance_options["required"] / total_instances) * 100
         if not json:
-            return utils.pretty_metadata_summary(
-                imds_enabled,
-                imds_disabled,
-                v1_available,
-                v2_required,
-                total_instances,
-                percent_enforcement_v2,
+            instance_options["percent_enforcement_v2"] = utils.convert_green(
+                f"{enforcement:.2f}%"
             )
+            return utils.pretty_metadata_summary([dict(instance_options)])
         elif json:
-            return utils.pretty_metadata_json(
-                imds_enabled,
-                imds_disabled,
-                v1_available,
-                v2_required,
-                total_instances,
-                percent_enforcement_v2,
-            )
+            instance_options["percent_enforcement_v2"] = enforcement
+            print(utils.pretty_json_summary(instance_options))

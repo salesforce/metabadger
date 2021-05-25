@@ -50,14 +50,14 @@ def disable_metadata(
         region=region, profile=profile, service="ec2"
     )
     instance_list = utils.discover_instances(ec2_resource)
-    if utils.discover_roles(ec2_client)[1]["Role_Count"] > 0:
+    if utils.discover_roles(ec2_client)[1]["role_count"] > 0:
         click.confirm(
             utils.convert_red(
                 f"Warning: One or more of the instances in {ec2_client.meta.region_name} you want to update has a role attached, do you want to continue?"
             ),
             abort=True,
         )
-    if utils.discover_roles(ec2_client)[1]["Instance_Count"] <= 0:
+    if utils.discover_roles(ec2_client)[1]["instance_count"] <= 0:
         utils.print_yellow(f"No EC2 instances found in region: {region}")
     if input_file:
         data = utils.read_from_csv(input_file)

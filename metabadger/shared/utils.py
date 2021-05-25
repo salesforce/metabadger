@@ -58,10 +58,10 @@ def discover_roles(ec2_client: object):
             role_name = "N/A"
         if role_name != "N/A":
             instance_role_summary[instance_id] = {
-                "Instance_Name": instance_name,
-                "Instance_Role": role_name,
+                "instance_name": instance_name,
+                "instance_role": role_name,
             }
-    short_summary = {"Role_Count": role_count, "Instance_Count": instance_count}
+    short_summary = {"role_count": role_count, "instance_count": instance_count}
     return instance_role_summary, short_summary
 
 
@@ -146,55 +146,11 @@ def read_from_csv(file):
     return data[0]
 
 
-def pretty_metadata_summary(
-    enabled_instances,
-    disabled_instances,
-    v1_enabled_instances,
-    v2_enforced_instances,
-    total_instances,
-    percent_enforcement_v2,
-):
+def pretty_metadata_summary(instance_options):
     """Format metadata usage breakdown"""
-    print(
-        tabulate(
-            [
-                [
-                    enabled_instances,
-                    disabled_instances,
-                    convert_red(v1_enabled_instances),
-                    convert_green(v2_enforced_instances),
-                    total_instances,
-                    convert_green(percent_enforcement_v2),
-                ]
-            ],
-            headers=[
-                "IMDS Enabled",
-                "IMDS Disabled",
-                convert_red("V1 Available"),
-                convert_green("V2 Enforced"),
-                "Total Instances",
-                convert_green("Enforcement Metric"),
-            ],
-            tablefmt="grid",
-        )
-    )
+    print(tabulate(instance_options, headers="keys", tablefmt="grid"))
 
 
-def pretty_metadata_json(
-    enabled_instances,
-    disabled_instances,
-    v1_enabled_instances,
-    v2_enforced_instances,
-    total_instances,
-    percent_enforcement_v2,
-):
-    """Generate a JSON of metadata usage"""
-    json_summary = {
-        "enabled_instances": enabled_instances,
-        "disabled_instances": disabled_instances,
-        "v1_enabled_instances": v1_enabled_instances,
-        "v2_enforced_instances": v2_enforced_instances,
-        "total_instances": total_instances,
-        "percent_enforcement_v2": percent_enforcement_v2,
-    }
-    print(json.dumps(json_summary, indent=4, sort_keys=True))
+def pretty_json_summary(instance_dict):
+    """Format metadata usage summary into JSON"""
+    print(json.dumps(instance_dict, indent=4, sort_keys=True))

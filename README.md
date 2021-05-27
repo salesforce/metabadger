@@ -4,6 +4,9 @@ An AWS Security tool created to let you see your Instance Metadata usage and har
 
 [![continuous-integration](https://github.com/salesforce/metabadger/workflows/continuous-integration/badge.svg?)](https://github.com/salesforce/metabadger/actions?query=workflow%3Acontinuous-integration)
 
+<p align="center">
+  <img src="docs/images/metabadger.gif">
+</p>
 
 <!-- toc -->
 

@@ -76,9 +76,15 @@ When making changes to the Instance Metadata service, you should be cautious and
 <!-- requirementsstop -->
 
 
-## Usage
+## Usage & Installation
 
 <!-- usage -->
+**Install via pip**
+```
+pip3 install --user metabadger
+```
+
+**Install via Github**
 
 ```sh-session
 $ git clone https://github.com/salesforce/metabadger

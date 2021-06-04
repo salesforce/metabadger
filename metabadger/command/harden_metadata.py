@@ -86,10 +86,10 @@ def harden_metadata(
         )
     if v1:
         message_default = "V1 Enforced"
-        http_token = "optional"
+        http_option = "optional"
     if not v1:
         message_default = "V2 Enforced"
-        http_token = "required"
+        http_option = "required"
     if exclusion and input_file:
         utils.print_yellow("Excluding instances specified in your configuration file")
         data = utils.read_from_csv(input_file)
@@ -97,7 +97,7 @@ def harden_metadata(
         delta = [instance for instance in instance_list if instance not in data]
         for instance in delta:
             utils.metamodify(
-                ec2_client, message_default, http_token, "enabled", instance, dry_run
+                ec2_client, message_default, http_option, "enabled", instance, dry_run
             )
     elif exclusion and tags:
         utils.print_yellow("Excluding instances specified by tags")
@@ -109,7 +109,7 @@ def harden_metadata(
                 utils.metamodify(
                     ec2_client,
                     message_default,
-                    http_token,
+                    http_option,
                     "enabled",
                     instance,
                     dry_run,
@@ -122,7 +122,7 @@ def harden_metadata(
         print(f"Reading instances from input csv file\n{data}")
         for instance in data:
             utils.metamodify(
-                ec2_client, message_default, http_token, "enabled", instance, dry_run
+                ec2_client, message_default, http_option, "enabled", instance, dry_run
             )
     elif tags:
         tag_apply_count = 0
@@ -136,7 +136,7 @@ def harden_metadata(
                 utils.metamodify(
                     ec2_client,
                     message_default,
-                    http_token,
+                    http_option,
                     "enabled",
                     instance,
                     dry_run,
@@ -146,5 +146,5 @@ def harden_metadata(
     else:
         for instance in instance_list:
             utils.metamodify(
-                ec2_client, message_default, http_token, "enabled", instance, dry_run
+                ec2_client, message_default, http_option, "enabled", instance, dry_run
             )

@@ -1,7 +1,7 @@
 """Disable IMDS service on instances"""
 import click
 from tabulate import tabulate
-from metabadger.shared import utils, aws_auth
+from metabadger.shared import utils, aws_auth, validate, discover
 
 
 @click.command(short_help="Disable the IMDS service on EC2 instances")
@@ -33,7 +33,7 @@ from metabadger.shared import utils, aws_auth
     type=str,
     default="",
     help="A comma seperated list of tags to apply the hardening setting to",
-    callback=utils.click_validate_tag_alphanumeric,
+    callback=validate.click_validate_tag_alphanumeric,
 )
 @click.option(
     "--region",
@@ -61,15 +61,15 @@ def disable_metadata(
     ec2_client = aws_auth.get_boto3_client(
         region=region, profile=profile, service="ec2"
     )
-    instance_list = utils.discover_instances(ec2_resource)
-    if utils.discover_roles(ec2_client)[1]["role_count"] > 0:
+    instance_list = discover.discover_instances(ec2_resource)
+    if discover.discover_roles(ec2_client)[1]["role_count"] > 0:
         click.confirm(
             utils.convert_red(
                 f"Warning: One or more of the instances in {ec2_client.meta.region_name} you want to update has a role attached, do you want to continue?"
             ),
             abort=True,
         )
-    if utils.discover_roles(ec2_client)[1]["instance_count"] <= 0:
+    if discover.discover_roles(ec2_client)[1]["instance_count"] <= 0:
         utils.print_yellow(f"No EC2 instances found in region: {region}")
     if exclusion and input_file:
         utils.print_yellow("Excluding instances specified in your configuration file")

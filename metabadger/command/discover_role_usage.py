@@ -1,6 +1,6 @@
 """Discover IAM role usage which may conflict with altering IMDS"""
 import click
-from metabadger.shared import utils, aws_auth
+from metabadger.shared import utils, aws_auth, discover
 
 
 @click.option(
@@ -20,7 +20,7 @@ def discover_role_usage(profile: str, region: str):
     ec2_client = aws_auth.get_boto3_client(
         region=region, profile=profile, service="ec2"
     )
-    instance_role_summary = utils.discover_roles(ec2_client)[0]
+    instance_role_summary = discover.discover_roles(ec2_client)[0]
     if not instance_role_summary:
         utils.print_yellow(f"No attached EC2 IAM roles found in region: {region}")
     else:

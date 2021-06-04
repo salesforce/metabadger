@@ -6,6 +6,13 @@ from metabadger.shared import utils, aws_auth
 
 @click.command(short_help="Disable the IMDS service on EC2 instances")
 @click.option(
+    "--exclusion",
+    "-e",
+    is_flag=True,
+    default=False,
+    help="The exclusion flag will apply to everything besides what is specified, tags or instances",
+)
+@click.option(
     "--dry-run",
     "-d",
     is_flag=True,
@@ -41,7 +48,12 @@ from metabadger.shared import utils, aws_auth
     "--profile", "-p", type=str, required=False, help="Specify the AWS IAM profile."
 )
 def disable_metadata(
-    dry_run: bool, input_file: str, tags: str, profile: str, region: str
+    dry_run: bool,
+    input_file: str,
+    tags: str,
+    profile: str,
+    region: str,
+    exclusion: bool,
 ):
     ec2_resource = aws_auth.get_boto3_resource(
         region=region, profile=profile, service="ec2"
@@ -59,7 +71,27 @@ def disable_metadata(
         )
     if utils.discover_roles(ec2_client)[1]["instance_count"] <= 0:
         utils.print_yellow(f"No EC2 instances found in region: {region}")
-    if input_file:
+    if exclusion and input_file:
+        utils.print_yellow("Excluding instances specified in your configuration file")
+        data = utils.read_from_csv(input_file)
+        print(f"Reading instances from input csv file\n{data}")
+        delta = [instance for instance in instance_list if instance not in data]
+        for instance in delta:
+            utils.metamodify(ec2_client, "disabled", "optional", "disabled", instance)
+    elif exclusion and tags:
+        utils.print_yellow("Excluding instances specified by tags")
+        print(f"Tags: {tags}")
+        for instance in instance_list:
+            if not any(
+                value in utils.get_instance_tags(ec2_client, instance) for value in tags
+            ):
+                utils.metamodify(
+                    ec2_client, "disabled", "optional", "disabled", instance
+                )
+    elif exclusion:
+        utils.print_yellow("An exclusion requires either tags or instance list")
+        raise click.Abort()
+    elif input_file:
         data = utils.read_from_csv(input_file)
         print(f"Reading instances from input csv file\n{data}")
         for instance in data:

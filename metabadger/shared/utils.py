@@ -1,8 +1,6 @@
 """ Additional utils """
 import csv
-import click
 import json
-import boto3
 import pandas as pd
 from colorama import Fore, Back
 from tabulate import tabulate
@@ -10,38 +8,6 @@ from tabulate import tabulate
 OK_GREEN = "\033[92m"
 GREY = "\33[90m"
 END = "\033[0m"
-
-
-def metamodify(ec2_client: boto3.Session.client, action: str, httptoken: str, status: str, instance_id: str):
-    """Helper function to change instance metadata status"""
-    try:
-        response = ec2_client.modify_instance_metadata_options(
-            InstanceId=instance_id,
-            HttpTokens=httptoken,
-            HttpEndpoint=status,
-        )
-        status = convert_green("SUCCESS")
-    except:
-        status = convert_red("FAILED")
-    print(f"IMDS updated : {action} for {instance_id:<80} {status:>20}")
-
-
-def get_instance_tags(ec2_client: boto3.Session.client, instance_id: str):
-    """Get instance tags to parse through for selective hardening"""
-    tag_values = []
-    tags = ec2_client.describe_tags(
-        Filters=[
-            {
-                "Name": "resource-id",
-                "Values": [
-                    instance_id,
-                ],
-            },
-        ],
-    )["Tags"]
-    for tag in tags:
-        tag_values.append(tag["Value"])
-    return tag_values
 
 
 def print_yellow(string):

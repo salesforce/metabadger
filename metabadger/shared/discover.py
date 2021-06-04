@@ -41,3 +41,21 @@ def discover_roles(ec2_client: boto3.Session.client) -> Tuple[dict, dict]:
             }
     short_summary = {"role_count": role_count, "instance_count": instance_count}
     return instance_role_summary, short_summary
+
+
+def get_instance_tags(ec2_client: boto3.Session.client, instance_id: str):
+    """Get instance tags to parse through for selective hardening"""
+    tag_values = []
+    tags = ec2_client.describe_tags(
+        Filters=[
+            {
+                "Name": "resource-id",
+                "Values": [
+                    instance_id,
+                ],
+            },
+        ],
+    )["Tags"]
+    for tag in tags:
+        tag_values.append(tag["Value"])
+    return tag_values

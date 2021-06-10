@@ -1,7 +1,7 @@
 """Disable IMDS service on instances"""
 import click
 from tabulate import tabulate
-from metabadger.shared import utils, aws_auth
+from metabadger.shared import utils, aws_auth, validate, discover, modify
 
 
 @click.command(short_help="Disable the IMDS service on EC2 instances")
@@ -33,7 +33,7 @@ from metabadger.shared import utils, aws_auth
     type=str,
     default="",
     help="A comma seperated list of tags to apply the hardening setting to",
-    callback=utils.click_validate_tag_alphanumeric,
+    callback=validate.click_validate_tag_alphanumeric,
 )
 @click.option(
     "--region",
@@ -61,15 +61,15 @@ def disable_metadata(
     ec2_client = aws_auth.get_boto3_client(
         region=region, profile=profile, service="ec2"
     )
-    instance_list = utils.discover_instances(ec2_resource)
-    if utils.discover_roles(ec2_client)[1]["role_count"] > 0:
+    instance_list = discover.discover_instances(ec2_resource)
+    if discover.discover_roles(ec2_client)[1]["role_count"] > 0:
         click.confirm(
             utils.convert_red(
                 f"Warning: One or more of the instances in {ec2_client.meta.region_name} you want to update has a role attached, do you want to continue?"
             ),
             abort=True,
         )
-    if utils.discover_roles(ec2_client)[1]["instance_count"] <= 0:
+    if discover.discover_roles(ec2_client)[1]["instance_count"] <= 0:
         utils.print_yellow(f"No EC2 instances found in region: {region}")
     if dry_run:
         utils.print_yellow(
@@ -81,7 +81,7 @@ def disable_metadata(
         print(f"Reading instances from input csv file\n{data}")
         delta = [instance for instance in instance_list if instance not in data]
         for instance in delta:
-            utils.metamodify(
+            modify.metamodify(
                 ec2_client, "disabled", "optional", "disabled", instance, dry_run
             )
     elif exclusion and tags:
@@ -89,9 +89,9 @@ def disable_metadata(
         print(f"Tags: {tags}")
         for instance in instance_list:
             if not any(
-                value in utils.get_instance_tags(ec2_client, instance) for value in tags
+                value in discover.get_instance_tags(ec2_client, instance) for value in tags
             ):
-                utils.metamodify(
+                modify.metamodify(
                     ec2_client, "disabled", "optional", "disabled", instance, dry_run
                 )
     elif exclusion:
@@ -101,7 +101,7 @@ def disable_metadata(
         data = utils.read_from_csv(input_file)
         print(f"Reading instances from input csv file\n{data}")
         for instance in data:
-            utils.metamodify(
+            modify.metamodify(
                 ec2_client, "disabled", "optional", "disabled", instance, dry_run
             )
     elif tags:
@@ -110,9 +110,9 @@ def disable_metadata(
         print(f"Tags: {tags}")
         for instance in instance_list:
             if any(
-                value in utils.get_instance_tags(ec2_client, instance) for value in tags
+                value in discover.get_instance_tags(ec2_client, instance) for value in tags
             ):
-                utils.metamodify(
+                modify.metamodify(
                     ec2_client, "disabled", "optional", "disabled", instance, dry_run
                 )
                 tag_apply_count += 1
@@ -120,6 +120,6 @@ def disable_metadata(
             print(f"No instances with this tag found, no changes were made")
     else:
         for instance in instance_list:
-            utils.metamodify(
+            modify.metamodify(
                 ec2_client, "disabled", "optional", "disabled", instance, dry_run
             )

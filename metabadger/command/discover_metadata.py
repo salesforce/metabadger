@@ -2,7 +2,7 @@
 import click
 from collections import Counter
 from tabulate import tabulate
-from metabadger.shared import utils, aws_auth
+from metabadger.shared import utils, aws_auth, discover
 
 
 @click.command(short_help="Discover summary of IMDS service usage within EC2")
@@ -32,7 +32,7 @@ def discover_metadata(json, profile: str, region: str):
     ec2_client = aws_auth.get_boto3_client(
         region=region, profile=profile, service="ec2"
     )
-    instance_list = utils.discover_instances(ec2_resource)
+    instance_list = discover.discover_instances(ec2_resource)
     instance_tracker = []
     total_instances = 0
     if not instance_list:

@@ -11,6 +11,7 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 VERSION_RE = re.compile(r'''__version__ = ['"]([0-9.]+)['"]''')
 TESTS_REQUIRE = []
 
+
 def get_version():
     init = open(
         os.path.join(
@@ -45,8 +46,9 @@ setuptools.setup(
         'boto3',
         'botocore',
         'click',
-        'click_option_group',
         'tabulate',
+        'colorama',
+        'pandas'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

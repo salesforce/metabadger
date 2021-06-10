@@ -1,7 +1,7 @@
 """Harden the AWS metadata service to your liking by upgrading to IMDSv2"""
 import click
 from tabulate import tabulate
-from metabadger.shared import utils, aws_auth, validate, discover
+from metabadger.shared import utils, aws_auth, validate, discover, modify
 from metabadger.command import discover_role_usage
 
 
@@ -87,7 +87,7 @@ def harden_metadata(
     if v1:
         message_default = "V1 Enforced"
         http_option = "optional"
-    if not v1:
+    else:
         message_default = "V2 Enforced"
         http_option = "required"
     if exclusion and input_file:
@@ -96,7 +96,7 @@ def harden_metadata(
         print(f"Reading instances from input csv file\n{data}")
         delta = [instance for instance in instance_list if instance not in data]
         for instance in delta:
-            utils.metamodify(
+            modify.metamodify(
                 ec2_client, message_default, http_option, "enabled", instance, dry_run
             )
     elif exclusion and tags:
@@ -104,9 +104,9 @@ def harden_metadata(
         print(f"Tags: {tags}")
         for instance in instance_list:
             if not any(
-                value in utils.get_instance_tags(ec2_client, instance) for value in tags
+                value in discover.get_instance_tags(ec2_client, instance) for value in tags
             ):
-                utils.metamodify(
+                modify.metamodify(
                     ec2_client,
                     message_default,
                     http_option,
@@ -121,7 +121,7 @@ def harden_metadata(
         data = utils.read_from_csv(input_file)
         print(f"Reading instances from input csv file\n{data}")
         for instance in data:
-            utils.metamodify(
+            modify.metamodify(
                 ec2_client, message_default, http_option, "enabled", instance, dry_run
             )
     elif tags:
@@ -130,10 +130,10 @@ def harden_metadata(
         print(f"Tags: {tags}")
         for instance in instance_list:
             if any(
-                value in utils.get_instance_tags(ec2_client, instance) for value in tags
+                value in discover.get_instance_tags(ec2_client, instance) for value in tags
             ):
                 tag_apply_count += 1
-                utils.metamodify(
+                modify.metamodify(
                     ec2_client,
                     message_default,
                     http_option,
@@ -145,6 +145,6 @@ def harden_metadata(
             print(f"No instances with this tag found, no changes were made")
     else:
         for instance in instance_list:
-            utils.metamodify(
+            modify.metamodify(
                 ec2_client, message_default, http_option, "enabled", instance, dry_run
             )

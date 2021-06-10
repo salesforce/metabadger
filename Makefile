@@ -66,3 +66,4 @@ count-loc:
 	echo "If you don't have tokei installed, you can install it with 'brew install tokei'"
 	echo "Website: https://github.com/XAMPPRocky/tokei#installation'"
 	tokei ./* --exclude --exclude '**/*.html' --exclude '**/*.json'
+

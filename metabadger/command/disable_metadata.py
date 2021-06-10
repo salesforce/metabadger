@@ -71,13 +71,19 @@ def disable_metadata(
         )
     if discover.discover_roles(ec2_client)[1]["instance_count"] <= 0:
         utils.print_yellow(f"No EC2 instances found in region: {region}")
+    if dry_run:
+        utils.print_yellow(
+            "Running in dry run mode, this will NOT make any changes to your metadata service"
+        )
     if exclusion and input_file:
         utils.print_yellow("Excluding instances specified in your configuration file")
         data = utils.read_from_csv(input_file)
         print(f"Reading instances from input csv file\n{data}")
         delta = [instance for instance in instance_list if instance not in data]
         for instance in delta:
-            utils.metamodify(ec2_client, "disabled", "optional", "disabled", instance)
+            utils.metamodify(
+                ec2_client, "disabled", "optional", "disabled", instance, dry_run
+            )
     elif exclusion and tags:
         utils.print_yellow("Excluding instances specified by tags")
         print(f"Tags: {tags}")
@@ -86,7 +92,7 @@ def disable_metadata(
                 value in utils.get_instance_tags(ec2_client, instance) for value in tags
             ):
                 utils.metamodify(
-                    ec2_client, "disabled", "optional", "disabled", instance
+                    ec2_client, "disabled", "optional", "disabled", instance, dry_run
                 )
     elif exclusion:
         utils.print_yellow("An exclusion requires either tags or instance list")
@@ -95,14 +101,9 @@ def disable_metadata(
         data = utils.read_from_csv(input_file)
         print(f"Reading instances from input csv file\n{data}")
         for instance in data:
-            utils.metamodify(ec2_client, "disabled", "optional", "disabled", instance)
-    elif dry_run:
-        utils.print_yellow(
-            "Running in dry run mode, this will NOT make any changes to your metadata service"
-        )
-        for instance in instance_list:
-            status = utils.convert_yellow("SUCCESS")
-            print(f"IMDS Disabled for {instance:<80} {status:>22}")
+            utils.metamodify(
+                ec2_client, "disabled", "optional", "disabled", instance, dry_run
+            )
     elif tags:
         tag_apply_count = 0
         utils.print_yellow("Only applying hardening to the following tagged instances")
@@ -112,11 +113,13 @@ def disable_metadata(
                 value in utils.get_instance_tags(ec2_client, instance) for value in tags
             ):
                 utils.metamodify(
-                    ec2_client, "disabled", "optional", "disabled", instance
+                    ec2_client, "disabled", "optional", "disabled", instance, dry_run
                 )
                 tag_apply_count += 1
         if tag_apply_count < 1:
             print(f"No instances with this tag found, no changes were made")
     else:
         for instance in instance_list:
-            utils.metamodify(ec2_client, "disabled", "optional", "disabled", instance)
+            utils.metamodify(
+                ec2_client, "disabled", "optional", "disabled", instance, dry_run
+            )

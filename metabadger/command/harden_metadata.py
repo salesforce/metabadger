@@ -80,13 +80,25 @@ def harden_metadata(
         )
     if discover.discover_roles(ec2_client)[1]["instance_count"] <= 0:
         utils.print_yellow(f"No EC2 instances found in region: {region}")
-    elif exclusion and input_file:
+    if dry_run:
+        utils.print_yellow(
+            "Running in dry run mode, this will NOT make any changes to your metadata service"
+        )
+    if v1:
+        message_default = "V1 Enforced"
+        http_option = "optional"
+    if not v1:
+        message_default = "V2 Enforced"
+        http_option = "required"
+    if exclusion and input_file:
         utils.print_yellow("Excluding instances specified in your configuration file")
         data = utils.read_from_csv(input_file)
         print(f"Reading instances from input csv file\n{data}")
         delta = [instance for instance in instance_list if instance not in data]
         for instance in delta:
-            utils.metamodify(ec2_client, "V2 Enforced", "required", "enabled", instance)
+            utils.metamodify(
+                ec2_client, message_default, http_option, "enabled", instance, dry_run
+            )
     elif exclusion and tags:
         utils.print_yellow("Excluding instances specified by tags")
         print(f"Tags: {tags}")
@@ -95,23 +107,23 @@ def harden_metadata(
                 value in utils.get_instance_tags(ec2_client, instance) for value in tags
             ):
                 utils.metamodify(
-                    ec2_client, "V2 Enforced", "required", "enabled", instance
+                    ec2_client,
+                    message_default,
+                    http_option,
+                    "enabled",
+                    instance,
+                    dry_run,
                 )
     elif exclusion:
         utils.print_yellow("An exclusion requires either tags or instance list")
         raise click.Abort()
-    elif dry_run:
-        utils.print_yellow(
-            "Running in dry run mode, this will NOT make any changes to your metadata service"
-        )
-        for instance in instance_list:
-            status = utils.convert_yellow("SUCCESS")
-            print(f"IMDS hardened to v2 for {instance:<80} {status:>22}")
     elif input_file:
         data = utils.read_from_csv(input_file)
         print(f"Reading instances from input csv file\n{data}")
         for instance in data:
-            utils.metamodify(ec2_client, "V2 Enforced", "required", "enabled", instance)
+            utils.metamodify(
+                ec2_client, message_default, http_option, "enabled", instance, dry_run
+            )
     elif tags:
         tag_apply_count = 0
         utils.print_yellow("Only applying hardening to the following tagged instances")
@@ -121,23 +133,18 @@ def harden_metadata(
                 value in utils.get_instance_tags(ec2_client, instance) for value in tags
             ):
                 tag_apply_count += 1
-                if not v1:
-                    utils.metamodify(
-                        ec2_client, "V2 Enforced", "required", "enabled", instance
-                    )
-                elif v1:
-                    utils.metamodify(
-                        ec2_client, "V1 Default Set", "optional", "enabled", instance
-                    )
+                utils.metamodify(
+                    ec2_client,
+                    message_default,
+                    http_option,
+                    "enabled",
+                    instance,
+                    dry_run,
+                )
         if tag_apply_count < 1:
             print(f"No instances with this tag found, no changes were made")
-    elif not input_file:
+    else:
         for instance in instance_list:
-            if not v1:
-                utils.metamodify(
-                    ec2_client, "V2 Enforced", "required", "enabled", instance
-                )
-            elif v1:
-                utils.metamodify(
-                    ec2_client, "V1 Default Set", "optional", "enabled", instance
-                )
+            utils.metamodify(
+                ec2_client, message_default, http_option, "enabled", instance, dry_run
+            )

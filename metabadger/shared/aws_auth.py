@@ -2,8 +2,9 @@
 import os
 import logging
 import boto3
+import sys
 from botocore.config import Config
-
+from metabadger.shared import utils
 logger = logging.getLogger(__name__)
 
 
@@ -16,7 +17,9 @@ def get_boto3_client(
     if profile:
         session_data["profile_name"] = profile
     session = boto3.Session(**session_data)
-
+    if region not in get_available_regions(service):
+        utils.print_red(f"The service {service} is not available in this region!")
+        sys.exit()
     config = Config(connect_timeout=5, retries={"max_attempts": 10})
     if os.environ.get("LOCALSTACK_ENDPOINT_URL"):
         client = session.client(

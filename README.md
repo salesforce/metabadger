@@ -164,3 +164,17 @@ Options:
 ```
 <!-- commandstop -->
 
+## Logging
+
+<!-- logging -->
+
+All changes made by Metabadger will be logged to a file saved in the working directory called ```metabadger.log```. The file will include the following for every action that the tool takes when it changes the metadata service:
+
+* The time and date stamp for when a change was made
+* Change that occured (disabled, hardened, or updated)
+* The instance ID where the change was made
+* Dry run information
+* A status on if the change was successful or not
+
+<!-- loggingstop -->
+

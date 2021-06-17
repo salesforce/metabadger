@@ -1,6 +1,5 @@
 """Discover EC2 Instance Metadata usage in your AWS account"""
 import click
-import time
 from collections import Counter
 from tabulate import tabulate
 from metabadger.shared import utils, aws_auth, discover

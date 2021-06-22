@@ -4,9 +4,7 @@ from typing import Tuple
 
 def discover_instances(ec2: boto3.Session.resource) -> list:
     """Get a list of instances, both running and stopped"""
-    instances = ec2.instances.filter(
-        Filters=[{"Name": "instance-state-name", "Values": ["running", "stopped"]}]
-    )
+    instances = ec2.instances.all()
     instance_list = []
     for instance in instances:
         instance_list.append(instance.id)

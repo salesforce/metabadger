@@ -38,12 +38,21 @@ def discover_metadata(json, profile: str, region: str):
     if not instance_list:
         utils.print_yellow(f"No instances found in region: {region}")
     else:
-        for instance in instance_list:
-            total_instances += 1
-            instance = ec2_resource.Instance(instance)
-            metadata_options = instance.metadata_options
-            instance_tracker.append(metadata_options.get("HttpEndpoint"))
-            instance_tracker.append(metadata_options.get("HttpTokens"))
+        paginator = ec2_client.get_paginator("describe_instances")
+        instances = paginator.paginate().build_full_result()
+        with click.progressbar(
+            instances["Reservations"], label="Calculating instance metadata summary..."
+        ) as all_instances:
+            for each_reservation in all_instances:
+                for each_instance in each_reservation["Instances"]:
+                    instance_tracker.append((each_instance["MetadataOptions"]["State"]))
+                    instance_tracker.append(
+                        (each_instance["MetadataOptions"]["HttpTokens"])
+                    )
+                    instance_tracker.append(
+                        (each_instance["MetadataOptions"]["HttpEndpoint"])
+                    )
+                    total_instances += 1
         instance_options = Counter(instance_tracker)
         instance_options["instances"] = total_instances
         enforcement = float(instance_options["required"] / total_instances) * 100

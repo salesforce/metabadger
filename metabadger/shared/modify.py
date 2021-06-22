@@ -1,4 +1,5 @@
 import boto3
+import logging
 from metabadger.shared.utils import convert_red, convert_green, convert_yellow
 
 
@@ -11,9 +12,12 @@ def metamodify(
     dry_run: bool,
 ):
     """Helper function to change instance metadata status"""
+    logging.basicConfig(filename='metabadger.log', format='%(asctime)s,%(message)s', level=logging.INFO, datefmt="%Y-%m-%dT%H:%M:%S")
     if dry_run:
-        status = convert_yellow("SUCCESS")
-        print(f"IMDS updated : {action} for {instance_id:<80} {status:>20}")
+        status_color = convert_yellow("SUCCESS")
+        status_text = "SUCCESS"
+        print(f"IMDS updated (Dry run mode) : {action} for {instance_id:<80} {status_color:>20}")
+        logging.info(f"imds_updated_dry_run,{action},{instance_id},{status_text}")
     else:
         try:
             response = ec2_client.modify_instance_metadata_options(
@@ -21,7 +25,10 @@ def metamodify(
                 HttpTokens=httptoken,
                 HttpEndpoint=status,
             )
-            status = convert_green("SUCCESS")
+            status_color = convert_green("SUCCESS")
+            status_text = "SUCCESS"
         except:
-            status = convert_red("FAILED")
-        print(f"IMDS updated : {action} for {instance_id:<80} {status:>20}")
+            status_color = convert_red("FAILED")
+            status_text = "FAILED"
+        print(f"IMDS updated : {action} for {instance_id:<80} {status_color:>20}")
+        logging.info(f"imds_updated,{action},{instance_id},{status_text}")

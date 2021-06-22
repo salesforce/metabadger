@@ -3,7 +3,7 @@ import json
 import boto3
 import unittest
 from moto import mock_ec2, mock_sts, mock_iam
-from metabadger.shared.modify import Instance, Instances
+from metabadger.shared.instances import Instance, Instances
 from metabadger.shared import aws_auth
 
 
@@ -28,7 +28,7 @@ class ModifyUnitTests(unittest.TestCase):
         print(self.instance_profile_name)
         self.ec2_client = aws_auth.get_boto3_client(service="ec2", region=region, profile=None)
         self.ec2_resource = aws_auth.get_boto3_resource(service="ec2", profile=None, region=region)
-        self.instances = Instances(ec2_client=self.ec2_client, ec2_resource=self.ec2_resource)
+        self.instances = Instances(ec2_client=self.ec2_client)
         self.instance = self.instances[0]
 
     def test_instance(self):

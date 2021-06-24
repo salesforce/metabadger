@@ -89,7 +89,8 @@ def disable_metadata(
         print(f"Tags: {tags}")
         for instance in instance_list:
             if not any(
-                value in discover.get_instance_tags(ec2_client, instance) for value in tags
+                value in discover.get_instance_tags(ec2_client, instance)
+                for value in tags
             ):
                 modify.metamodify(
                     ec2_client, "disabled", "optional", "disabled", instance, dry_run
@@ -110,7 +111,8 @@ def disable_metadata(
         print(f"Tags: {tags}")
         for instance in instance_list:
             if any(
-                value in discover.get_instance_tags(ec2_client, instance) for value in tags
+                value in discover.get_instance_tags(ec2_client, instance)
+                for value in tags
             ):
                 modify.metamodify(
                     ec2_client, "disabled", "optional", "disabled", instance, dry_run

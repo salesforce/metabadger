@@ -61,7 +61,7 @@ def disable_metadata(
     ec2_client = aws_auth.get_boto3_client(
         region=region, profile=profile, service="ec2"
     )
-    instance_list = discover.discover_instances(ec2_resource)
+    instance_list = discover.discover_instances(ec2_client)
     if discover.discover_roles(ec2_client)[1]["role_count"] > 0:
         click.confirm(
             utils.convert_red(

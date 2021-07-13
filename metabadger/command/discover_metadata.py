@@ -37,7 +37,7 @@ def discover_metadata(json, profile: str, region: str):
     ec2_client = aws_auth.get_boto3_client(
         region=region, profile=profile, service="ec2"
     )
-    instance_list = discover.discover_instances(ec2_resource)
+    instance_list = discover.discover_instances(ec2_client)
     instance_tracker = []
     total_instances = 0
     if not instance_list:

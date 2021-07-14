@@ -1,3 +1,8 @@
+# Copyright (c) 2021, salesforce.com, inc.
+# All rights reserved.
+# Licensed under the BSD 3-Clause license.
+# For full license text, see the LICENSE file in the repo root
+# or https://opensource.org/licenses/BSD-3-Clause
 import json
 import unittest
 import warnings
@@ -32,10 +37,10 @@ class DiscoverUtilsUnitTests(unittest.TestCase):
         self.ec2_client = aws_auth.get_boto3_client(service="ec2", region="us-east-1", profile=None)
 
     def test_discover_instances(self):
-        ec2_resource = aws_auth.get_boto3_resource(
+        ec2_client = aws_auth.get_boto3_client(
             region="us-east-1", profile=None, service="ec2"
         )
-        results = discover_instances(ec2_resource)
+        results = discover_instances(ec2_client)
         print(results)
         self.assertListEqual(results, self.instance_ids)
 

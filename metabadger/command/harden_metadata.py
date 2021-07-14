@@ -1,3 +1,8 @@
+# Copyright (c) 2021, salesforce.com, inc.
+# All rights reserved.
+# Licensed under the BSD 3-Clause license.
+# For full license text, see the LICENSE file in the repo root
+# or https://opensource.org/licenses/BSD-3-Clause
 """Harden the AWS metadata service to your liking by upgrading to IMDSv2"""
 import click
 from tabulate import tabulate
@@ -70,7 +75,7 @@ def harden_metadata(
     ec2_client = aws_auth.get_boto3_client(
         region=region, profile=profile, service="ec2"
     )
-    instance_list = discover.discover_instances(ec2_resource)
+    instance_list = discover.discover_instances(ec2_client)
     if discover.discover_roles(ec2_client)[1]["role_count"] > 0:
         click.confirm(
             utils.convert_red(
@@ -104,7 +109,8 @@ def harden_metadata(
         print(f"Tags: {tags}")
         for instance in instance_list:
             if not any(
-                value in discover.get_instance_tags(ec2_client, instance) for value in tags
+                value in discover.get_instance_tags(ec2_client, instance)
+                for value in tags
             ):
                 modify.metamodify(
                     ec2_client,
@@ -130,7 +136,8 @@ def harden_metadata(
         print(f"Tags: {tags}")
         for instance in instance_list:
             if any(
-                value in discover.get_instance_tags(ec2_client, instance) for value in tags
+                value in discover.get_instance_tags(ec2_client, instance)
+                for value in tags
             ):
                 tag_apply_count += 1
                 modify.metamodify(

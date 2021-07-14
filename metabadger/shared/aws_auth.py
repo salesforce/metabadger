@@ -1,3 +1,8 @@
+# Copyright (c) 2021, salesforce.com, inc.
+# All rights reserved.
+# Licensed under the BSD 3-Clause license.
+# For full license text, see the LICENSE file in the repo root
+# or https://opensource.org/licenses/BSD-3-Clause
 """ AWS auth functions from https://github.com/salesforce/cloudsplaining/blob/master/cloudsplaining/shared/aws_login.py """
 import os
 import logging
@@ -5,6 +10,7 @@ import boto3
 import sys
 from botocore.config import Config
 from metabadger.shared import utils
+
 logger = logging.getLogger(__name__)
 
 

@@ -1,3 +1,8 @@
+# Copyright (c) 2021, salesforce.com, inc.
+# All rights reserved.
+# Licensed under the BSD 3-Clause license.
+# For full license text, see the LICENSE file in the repo root
+# or https://opensource.org/licenses/BSD-3-Clause
 """Discover EC2 Instance Metadata usage in your AWS account"""
 import click
 from collections import Counter
@@ -32,7 +37,7 @@ def discover_metadata(json, profile: str, region: str):
     ec2_client = aws_auth.get_boto3_client(
         region=region, profile=profile, service="ec2"
     )
-    instance_list = discover.discover_instances(ec2_resource)
+    instance_list = discover.discover_instances(ec2_client)
     instance_tracker = []
     total_instances = 0
     if not instance_list:

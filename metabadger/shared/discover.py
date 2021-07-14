@@ -1,13 +1,24 @@
+# Copyright (c) 2021, salesforce.com, inc.
+# All rights reserved.
+# Licensed under the BSD 3-Clause license.
+# For full license text, see the LICENSE file in the repo root
+# or https://opensource.org/licenses/BSD-3-Clause
 import boto3
+import click
 from typing import Tuple
 
 
-def discover_instances(ec2: boto3.Session.resource) -> list:
+def discover_instances(ec2_client: boto3.Session.client) -> list:
     """Get a list of instances, both running and stopped"""
-    instances = ec2.instances.all()
+    paginator = ec2_client.get_paginator("describe_instances")
+    instances = paginator.paginate().build_full_result()
     instance_list = []
-    for instance in instances:
-        instance_list.append(instance.id)
+    with click.progressbar(
+            instances["Reservations"], label="Calculating all instances..."
+        ) as all_instances:
+            for each_reservation in all_instances:
+                for each_instance in each_reservation["Instances"]:
+                    instance_list.append(each_instance['InstanceId'])
     return instance_list
 
 

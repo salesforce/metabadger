@@ -44,6 +44,7 @@ def discover_metadata(json, profile: str, region: str):
     if not instance_list:
         utils.print_yellow(f"No instances found in region: {region}")
     else:
+        print (f"Gathering EC2 metrics for {region}...")
         paginator = ec2_client.get_paginator("describe_instances")
         instances = paginator.paginate(PaginationConfig={"PageSize" : 1000}).build_full_result()
         with click.progressbar(

@@ -15,7 +15,7 @@ def discover_instances(ec2_client: boto3.Session.client) -> list:
     instances = paginator.paginate(PaginationConfig={"PageSize" : 1000}).build_full_result()
     instance_list = []
     with click.progressbar(
-            instances["Reservations"], label=utils.convert_green("Pulling instances...")
+            instances["Reservations"], label=utils.convert_green("Pulling instances...                    ")
         ) as all_instances:
             for each_reservation in all_instances:
                 time.sleep(.2)

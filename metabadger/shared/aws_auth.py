@@ -26,7 +26,7 @@ def get_boto3_client(
     if region not in get_available_regions(service):
         utils.print_red(f"The service {service} is not available in this region!")
         sys.exit()
-    config = Config(connect_timeout=5, retries={"max_attempts": 10})
+    config = Config(read_timeout=5, connect_timeout=5, retries={"max_attempts": 10})
     if os.environ.get("LOCALSTACK_ENDPOINT_URL"):
         client = session.client(
             service,

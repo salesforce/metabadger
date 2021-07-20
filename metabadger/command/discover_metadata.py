@@ -50,7 +50,7 @@ def discover_metadata(json, profile: str, region: str):
             instances["Reservations"], label=utils.convert_green("Calculating instance metadata summary...")
         ) as all_instances:
             for each_reservation in all_instances:
-                time.sleep(.2)
+                time.sleep(.02)
                 for each_instance in each_reservation["Instances"]:
                     instance_tracker.append((each_instance["MetadataOptions"]["State"]))
                     instance_tracker.append(

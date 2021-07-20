@@ -18,7 +18,7 @@ def discover_instances(ec2_client: boto3.Session.client) -> list:
             instances["Reservations"], label=utils.convert_green("Pulling instances...                    ")
         ) as all_instances:
             for each_reservation in all_instances:
-                time.sleep(.02)
+                time.sleep(.001)
                 for each_instance in each_reservation["Instances"]:
                     instance_list.append(each_instance['InstanceId'])
     return instance_list

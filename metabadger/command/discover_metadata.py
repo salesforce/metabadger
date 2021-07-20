@@ -5,6 +5,7 @@
 # or https://opensource.org/licenses/BSD-3-Clause
 """Discover EC2 Instance Metadata usage in your AWS account"""
 import click
+import time
 from collections import Counter
 from tabulate import tabulate
 from metabadger.shared import utils, aws_auth, discover
@@ -44,11 +45,12 @@ def discover_metadata(json, profile: str, region: str):
         utils.print_yellow(f"No instances found in region: {region}")
     else:
         paginator = ec2_client.get_paginator("describe_instances")
-        instances = paginator.paginate().build_full_result()
+        instances = paginator.paginate(PaginationConfig={"PageSize" : 1000}).build_full_result()
         with click.progressbar(
-            instances["Reservations"], label="Calculating instance metadata summary..."
+            instances["Reservations"], label=utils.convert_green("Calculating instance metadata summary...")
         ) as all_instances:
             for each_reservation in all_instances:
+                time.sleep(.2)
                 for each_instance in each_reservation["Instances"]:
                     instance_tracker.append((each_instance["MetadataOptions"]["State"]))
                     instance_tracker.append(

@@ -38,13 +38,13 @@ def discover_metadata(json, profile: str, region: str):
     ec2_client = aws_auth.get_boto3_client(
         region=region, profile=profile, service="ec2"
     )
+    print (f"Gathering EC2 metrics for {region}...")
     instance_list = discover.discover_instances(ec2_client)
     instance_tracker = []
     total_instances = 0
     if not instance_list:
         utils.print_yellow(f"No instances found in region: {region}")
     else:
-        print (f"Gathering EC2 metrics for {region}...")
         paginator = ec2_client.get_paginator("describe_instances")
         instances = paginator.paginate(PaginationConfig={"PageSize" : 1000}).build_full_result()
         with click.progressbar(

@@ -1,5 +1,6 @@
 import boto3
 from metabadger.shared.utils import convert_red, convert_green, convert_yellow
+from metabadger.shared.discover import discover_instances
 
 
 class Instances:
@@ -12,17 +13,7 @@ class Instances:
         self.instances = self._set_instance_data()
 
     def instance_ids(self):
-        instance_list = []
-        paginator = self.ec2_client.get_paginator('describe_instances')
-        page_iterator = paginator.paginate(Filters=[{"Name": "instance-state-name", "Values": ["running", "stopped"]}])
-        # TODO: Filter based on tags?
-        for page in page_iterator:
-            reservations = page.get("Reservations")
-            for reservation in reservations:
-                for instance in reservation.get("Instances"):
-                    instance_id = instance.get("InstanceId")
-                    instance_list.append(instance_id)
-        return instance_list
+        return discover_instances(ec2_client=self.ec2_client)
 
     def _set_instance_data(self):
         instance_list = []
@@ -87,6 +78,9 @@ class Instances:
             if instance.http_endpoint == "required":
                 results.append(instance)
         return results
+
+    # def instances_with_tags(self, tags: str):
+
 
 
 class Instance:

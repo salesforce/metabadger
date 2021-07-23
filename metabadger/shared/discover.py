@@ -5,18 +5,20 @@
 # or https://opensource.org/licenses/BSD-3-Clause
 import boto3
 import click
+import time
 from typing import Tuple
-
+from metabadger.shared import utils
 
 def discover_instances(ec2_client: boto3.Session.client) -> list:
     """Get a list of instances, both running and stopped"""
     paginator = ec2_client.get_paginator("describe_instances")
-    instances = paginator.paginate().build_full_result()
+    instances = paginator.paginate(PaginationConfig={"PageSize" : 1000}).build_full_result()
     instance_list = []
     with click.progressbar(
-            instances["Reservations"], label="Calculating all instances..."
+            instances["Reservations"], label=utils.convert_green("Pulling instances...                    ")
         ) as all_instances:
             for each_reservation in all_instances:
+                time.sleep(.001)
                 for each_instance in each_reservation["Instances"]:
                     instance_list.append(each_instance['InstanceId'])
     return instance_list

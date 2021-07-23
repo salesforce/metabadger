@@ -1,6 +1,6 @@
 # Metabadger
 
-An AWS Security tool created to let you see your Instance Metadata usage and harden it to version 2 to prevent against known attack vectors that may leverage version 1.
+Prevent SSRF attacks on AWS EC2 via automated upgrades to the more secure Instance Metadata Service v2 (IMDSv2). 
 
 [![continuous-integration](https://github.com/salesforce/metabadger/workflows/continuous-integration/badge.svg?)](https://github.com/salesforce/metabadger/actions?query=workflow%3Acontinuous-integration)
 

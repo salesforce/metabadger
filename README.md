@@ -3,6 +3,8 @@
 Prevent SSRF attacks on AWS EC2 via automated upgrades to the more secure Instance Metadata Service v2 (IMDSv2). 
 
 [![continuous-integration](https://github.com/salesforce/metabadger/workflows/continuous-integration/badge.svg?)](https://github.com/salesforce/metabadger/actions?query=workflow%3Acontinuous-integration)
+[![Downloads](https://pepy.tech/badge/metabadger)](https://pepy.tech/project/metabadger)
+
 
 <p align="center">
   <img src="docs/images/metabadger.gif">

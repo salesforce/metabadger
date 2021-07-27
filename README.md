@@ -23,7 +23,7 @@ Purpose and functionality
 # What is the AWS Instance Metadata Service?
 
 * The AWS metadata service essentially gives you access to all the things within an instance, including the instance role credential & session token
-* Known XSRF vulnerabilities that exploit and use this attack as a pivot into your environment
+* Known SSRF vulnerabilities that exploit and use this attack as a pivot into your environment
 * The famous attacks you have heard about, some of which involved this method of gaining access via a vulnerable web app with access to the instance metadata service
 * Attacker could take said credentials from metadata service and use them outside of that particular instance 
 

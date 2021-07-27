@@ -58,7 +58,7 @@ jobs:
           password: ${{ secrets.PYPI_PASSWORD }}
 
   bump-version:
-    needs: test
+    needs: publish-package
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

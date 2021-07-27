@@ -30,32 +30,32 @@ jobs:
         run: |
           make install
 
- publish-package:
-   needs: test
-   runs-on: ubuntu-latest
-   steps:
-     - uses: actions/checkout@master
-     - name: Set up Python 3.7
-       uses: actions/setup-python@v2
-       with:
-         python-version: 3.7
-     - name: Install dependencies
-       run: |
-         pip install -r requirements.txt
-         pip install -r requirements-dev.txt
-     - name: create python package
-       run: |
-         git config --local user.email "action@github.com"
-         git config --local user.name "GitHub Action"
-         git fetch --tags
-         git pull origin main
-         pip install setuptools wheel twine
-         python -m setup sdist bdist_wheel
-     - name: Publish package
-       uses: pypa/gh-action-pypi-publish@master
-       with:
-         user: __token__
-         password: ${{ secrets.PYPI_PASSWORD }}
+  publish-package:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+      - name: create python package
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git fetch --tags
+          git pull origin main
+          pip install setuptools wheel twine
+          python -m setup sdist bdist_wheel
+      - name: Publish package
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_PASSWORD }}
 
   bump-version:
     needs: test

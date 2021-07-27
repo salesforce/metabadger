@@ -4,7 +4,7 @@ Prevent SSRF attacks on AWS EC2 via automated upgrades to the more secure Instan
 
 [![continuous-integration](https://github.com/salesforce/metabadger/workflows/continuous-integration/badge.svg?)](https://github.com/salesforce/metabadger/actions?query=workflow%3Acontinuous-integration)
 [![Downloads](https://pepy.tech/badge/metabadger)](https://pepy.tech/project/metabadger)
-
+[![Twitter](https://img.shields.io/twitter/url/https/twitter.com/_ashishpatel.svg?style=social&label=Follow%20the%20author)](https://twitter.com/_ashishpatel)
 
 <p align="center">
   <img src="docs/images/metabadger.gif">

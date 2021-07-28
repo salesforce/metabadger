@@ -39,7 +39,7 @@ Engineering teams may have a vast variety of compute infrastructure in AWS that 
 
 # Disclaimer and Rollback
 
-Using this tool may impact your AWS compute infrastructure as not all services and applications may work either without the metadata service or on version 2. Take caution when deploying this in your production environment and have a rollback plan in place incase something seems out of the ordinary. Metabadger comes built in with the ability to roll back to the default version 1 of the service using the -v1 flag, you can use this to quickly roll back your instances to use the default. Ideally, you should run this tool and update your metadata version in non-production environments as a proving grounds before applying it 
+Using this tool may impact your AWS compute infrastructure as not all services and applications may work either without the metadata service or on version 2. Take caution when deploying this in your production environment and have a rollback plan in place incase something seems out of the ordinary. Metabadger comes built in with the ability to roll back to the default version 1 of the service using the -v1 flag, you can use this to quickly roll back your instances to use the default. Ideally, you should run this tool and update your metadata version in non-production environments as a proving grounds before applying it.
 
 <!-- tocstop -->
 
@@ -49,7 +49,7 @@ Using this tool may impact your AWS compute infrastructure as not all services a
 
 **Step 1**
 
-Initially, we want to discover our overall usage of the metadata service in a particular AWS region. Metabadger will evaluate the current status of your usage in the region where your credentials point to in your ```/.aws/credentials``` file or the current role that is assumed. You may also specify the ```--region``` flag when running the ```discover-metadata``` command if you would like to change to another region than what is currently configured. Once you have a good idea of which version your instances are running and if the service is enabled or disabled, you will be able to make a much more defined action plan for hardening the service.
+Initially, we want to discover our overall usage of the metadata service in a particular AWS region. Metabadger will evaluate the current status of your usage in the region where your credentials point to in your ```/.aws/credentials``` file or the current role that is assumed. You may also specify the ```--region``` flag when running the ```discover-metadata``` command if you would like to change to another region than what is currently configured. Once you have a good idea of which version your instances are running and if the service is enabled or disabled, you will be able to make a much more defined action plan for hardening the service. Note that you can find specific meaning to every metadata option that is set [here](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ec2/modify-instance-metadata-options.html).
 
 **Step 2**
 

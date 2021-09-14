@@ -6,21 +6,53 @@
 import boto3
 import click
 import time
+from collections import Counter
 from typing import Tuple
 from metabadger.shared import utils
+
+
+def get_summary(ec2_client: boto3.Session.client):
+    total_instances = 0
+    instance_tracker = []
+    paginator = ec2_client.get_paginator("describe_instances")
+    instances = paginator.paginate(
+        PaginationConfig={"PageSize": 1000}
+    ).build_full_result()
+    with click.progressbar(
+        instances["Reservations"],
+        label=utils.convert_green("Calculating instance metadata summary..."),
+    ) as all_instances:
+        for each_reservation in all_instances:
+            time.sleep(0.001)
+            for each_instance in each_reservation["Instances"]:
+                instance_tracker.append((each_instance["MetadataOptions"]["State"]))
+                instance_tracker.append(
+                    (each_instance["MetadataOptions"]["HttpTokens"])
+                )
+                instance_tracker.append(
+                    (each_instance["MetadataOptions"]["HttpEndpoint"])
+                )
+                total_instances += 1
+    instance_options = Counter(instance_tracker)
+    instance_options["instances"] = total_instances
+    return instance_options
+
 
 def discover_instances(ec2_client: boto3.Session.client) -> list:
     """Get a list of instances, both running and stopped"""
     paginator = ec2_client.get_paginator("describe_instances")
-    instances = paginator.paginate(PaginationConfig={"PageSize" : 1000}).build_full_result()
+    instances = paginator.paginate(
+        PaginationConfig={"PageSize": 1000}
+    ).build_full_result()
     instance_list = []
     with click.progressbar(
-            instances["Reservations"], label=utils.convert_green("Pulling instances...                    ")
-        ) as all_instances:
-            for each_reservation in all_instances:
-                time.sleep(.001)
-                for each_instance in each_reservation["Instances"]:
-                    instance_list.append(each_instance['InstanceId'])
+        instances["Reservations"],
+        label=utils.convert_green("Pulling instances...                    "),
+    ) as all_instances:
+        for each_reservation in all_instances:
+            time.sleep(0.001)
+            for each_instance in each_reservation["Instances"]:
+                instance_list.append(each_instance["InstanceId"])
     return instance_list
 
 

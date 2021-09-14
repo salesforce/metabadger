@@ -48,7 +48,6 @@ def discover_metadata(json, profile: str, region: str, all_region):
     all_regions = aws_auth.get_available_regions("ec2")
     if all_region:
         instance_total_options = []
-        enforcement = 100
         utils.print_green(
             f"All region scan initiated: Iterating through each of the following regions {utils.convert_yellow(all_regions)}"
         )

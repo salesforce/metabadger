@@ -82,16 +82,17 @@ def discover_metadata(json, profile: str, region: str, all_region):
         instance_list = discover.discover_instances(ec2_client)
         if not instance_list:
             utils.print_yellow(f"No instances found in region: {region}")
-        print(f"Gathering EC2 metrics for {region}...")
-        instance_options = discover.get_summary(ec2_client)
-        enforcement = (
-            float(instance_options["required"] / instance_options["instances"]) * 100
-        )
-        if not json:
-            instance_options["percent_enforcement_v2"] = utils.convert_green(
-                f"{enforcement:.2f}%"
+        else:
+            print(f"Gathering EC2 metrics for {region}...")
+            instance_options = discover.get_summary(ec2_client)
+            enforcement = (
+                float(instance_options["required"] / instance_options["instances"]) * 100
             )
-            return utils.pretty_metadata_summary([dict(instance_options)])
-        elif json:
-            instance_options["percent_enforcement_v2"] = enforcement
-            print(utils.pretty_json_summary(instance_options))
+            if not json:
+                instance_options["percent_enforcement_v2"] = utils.convert_green(
+                    f"{enforcement:.2f}%"
+                )
+                return utils.pretty_metadata_summary([dict(instance_options)])
+            elif json:
+                instance_options["percent_enforcement_v2"] = enforcement
+                print(utils.pretty_json_summary(instance_options))

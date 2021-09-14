@@ -13,6 +13,13 @@ from metabadger.shared import utils, aws_auth, discover
 
 @click.command(short_help="Discover summary of IMDS service usage within EC2")
 @click.option(
+    "--all-region",
+    "-a",
+    is_flag=True,
+    default=False,
+    help="Provide a metadata summary for all available regions in the AWS account",
+)
+@click.option(
     "--json",
     "-j",
     is_flag=True,
@@ -31,39 +38,56 @@ from metabadger.shared import utils, aws_auth, discover
 @click.option(
     "--profile", "-p", type=str, required=False, help="Specify the AWS IAM profile."
 )
-def discover_metadata(json, profile: str, region: str):
+def discover_metadata(json, profile: str, region: str, all_region):
     ec2_resource = aws_auth.get_boto3_resource(
         region=region, profile=profile, service="ec2"
     )
     ec2_client = aws_auth.get_boto3_client(
         region=region, profile=profile, service="ec2"
     )
-    print (f"Gathering EC2 metrics for {region}...")
-    instance_list = discover.discover_instances(ec2_client)
-    instance_tracker = []
-    total_instances = 0
-    if not instance_list:
-        utils.print_yellow(f"No instances found in region: {region}")
+    all_regions = aws_auth.get_available_regions("ec2")
+    if all_region:
+        instance_total_options = []
+        enforcement = 100
+        utils.print_green(
+            f"All region scan initiated: Iterating through each of the following regions {utils.convert_yellow(all_regions)}"
+        )
+        for each_region in all_regions:
+            try:
+                instance_total_options.append(
+                    discover.get_summary(
+                        aws_auth.get_boto3_client(
+                            region=each_region, profile=profile, service="ec2"
+                        )
+                    )
+                )
+            except Exception as e:
+                utils.print_yellow(f"No instance information for {each_region}")
+        instance_all_region_total = sum(instance_total_options, Counter())
+        enforcement = (
+            float(
+                instance_all_region_total["required"]
+                / instance_all_region_total["instances"]
+            )
+            * 100
+        )
+        if not json:
+            instance_all_region_total["percent_enforcement_v2"] = utils.convert_green(
+                f"{enforcement:.2f}%"
+            )
+            return utils.pretty_metadata_summary([dict(instance_all_region_total)])
+        elif json:
+            instance_all_region_total["percent_enforcement_v2"] = enforcement
+            print(utils.pretty_json_summary(instance_all_region_total))
     else:
-        paginator = ec2_client.get_paginator("describe_instances")
-        instances = paginator.paginate(PaginationConfig={"PageSize" : 1000}).build_full_result()
-        with click.progressbar(
-            instances["Reservations"], label=utils.convert_green("Calculating instance metadata summary...")
-        ) as all_instances:
-            for each_reservation in all_instances:
-                time.sleep(.001)
-                for each_instance in each_reservation["Instances"]:
-                    instance_tracker.append((each_instance["MetadataOptions"]["State"]))
-                    instance_tracker.append(
-                        (each_instance["MetadataOptions"]["HttpTokens"])
-                    )
-                    instance_tracker.append(
-                        (each_instance["MetadataOptions"]["HttpEndpoint"])
-                    )
-                    total_instances += 1
-        instance_options = Counter(instance_tracker)
-        instance_options["instances"] = total_instances
-        enforcement = float(instance_options["required"] / total_instances) * 100
+        instance_list = discover.discover_instances(ec2_client)
+        if not instance_list:
+            utils.print_yellow(f"No instances found in region: {region}")
+        print(f"Gathering EC2 metrics for {region}...")
+        instance_options = discover.get_summary(ec2_client)
+        enforcement = (
+            float(instance_options["required"] / instance_options["instances"]) * 100
+        )
         if not json:
             instance_options["percent_enforcement_v2"] = utils.convert_green(
                 f"{enforcement:.2f}%"

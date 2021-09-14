@@ -122,6 +122,7 @@ A summary of your overall instance metadata service usage including which versio
 
 ```
 Options:
+  -a, --all-region    Provide a metadata summary for all available regions in the AWS account
   -j, --json          Get metadata summary in JSON format
   -r, --region TEXT   Specify which AWS region you will perform this command in
   -p, --profile TEXT  Specify the AWS IAM profile.

@@ -66,7 +66,11 @@ def disable_metadata(
     ec2_client = aws_auth.get_boto3_client(
         region=region, profile=profile, service="ec2"
     )
+    # Get a list of instance IDs
     instance_list = discover.discover_instances(ec2_client)
+
+    # Checks and validations
+    # If there are instances that have a role attached, confirm you want to proceed
     if discover.discover_roles(ec2_client)[1]["role_count"] > 0:
         click.confirm(
             utils.convert_red(
@@ -74,12 +78,17 @@ def disable_metadata(
             ),
             abort=True,
         )
+    # If no EC2 instances are in the region, warn
     if discover.discover_roles(ec2_client)[1]["instance_count"] <= 0:
         utils.print_yellow(f"No EC2 instances found in region: {region}")
+    # If dry-run is selected, tell the user
     if dry_run:
         utils.print_yellow(
             "Running in dry run mode, this will NOT make any changes to your metadata service"
         )
+
+    # Make metadata modifications
+    # Case: Exclude - based on a text file of instance IDs
     if exclusion and input_file:
         utils.print_yellow("Excluding instances specified in your configuration file")
         data = utils.read_from_csv(input_file)
@@ -89,6 +98,7 @@ def disable_metadata(
             modify.metamodify(
                 ec2_client, "disabled", "optional", "disabled", instance, dry_run
             )
+    # Case: Exclude - exclude based on tags supplied via CLI arguments
     elif exclusion and tags:
         utils.print_yellow("Excluding instances specified by tags")
         print(f"Tags: {tags}")
@@ -100,9 +110,11 @@ def disable_metadata(
                 modify.metamodify(
                     ec2_client, "disabled", "optional", "disabled", instance, dry_run
                 )
+    # Case: Exclude - incorrect arguments
     elif exclusion:
         utils.print_yellow("An exclusion requires either tags or instance list")
         raise click.Abort()
+    # Case: Include - Apply only to the instances that are in the file
     elif input_file:
         data = utils.read_from_csv(input_file)
         print(f"Reading instances from input csv file\n{data}")
@@ -110,6 +122,7 @@ def disable_metadata(
             modify.metamodify(
                 ec2_client, "disabled", "optional", "disabled", instance, dry_run
             )
+    # Case: Include - apply to instances that have tags supplied via CLI arguments
     elif tags:
         tag_apply_count = 0
         utils.print_yellow("Only applying hardening to the following tagged instances")
@@ -125,6 +138,7 @@ def disable_metadata(
                 tag_apply_count += 1
         if tag_apply_count < 1:
             print(f"No instances with this tag found, no changes were made")
+    # Case: If exclude or include are not supplied, just modify everything.
     else:
         for instance in instance_list:
             modify.metamodify(

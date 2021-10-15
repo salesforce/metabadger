@@ -9,7 +9,7 @@ from metabadger.shared.utils import convert_red, convert_green, convert_yellow
 
 
 def metamodify(
-    ec2_client,
+    ec2_client: boto3.Session.client,
     action: str,
     httptoken: str,
     status: str,

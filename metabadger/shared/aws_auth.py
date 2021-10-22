@@ -35,7 +35,8 @@ def get_boto3_client(
         )
     else:
         client = session.client(service, config=config)
-    utils.print_green(f"Authentication to {service} in {region} was successful!")
+    # Uncomment if you are having trouble with authing across a particular region :)
+    # utils.print_green(f"Authentication to {service} in {region} was successful!")
     logger.debug(
         f"{client.meta.endpoint_url} in {client.meta.region_name}: boto3 client login successful"
     )

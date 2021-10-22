@@ -63,21 +63,24 @@ def discover_metadata(json, profile: str, region: str, all_region):
             except Exception as e:
                 utils.print_yellow(f"No instance information for {each_region}")
         instance_all_region_total = sum(instance_total_options, Counter())
-        enforcement = (
-            float(
-                instance_all_region_total["required"]
-                / instance_all_region_total["instances"]
+        if instance_all_region_total["instances"] == 0:
+            utils.print_red(f"No instances found in your AWS account")
+        else:
+            enforcement = (
+                float(
+                    instance_all_region_total["required"]
+                    / instance_all_region_total["instances"]
+                )
+                * 100
             )
-            * 100
-        )
-        if not json:
-            instance_all_region_total["percent_enforcement_v2"] = utils.convert_green(
-                f"{enforcement:.2f}%"
-            )
-            return utils.pretty_metadata_summary([dict(instance_all_region_total)])
-        elif json:
-            instance_all_region_total["percent_enforcement_v2"] = enforcement
-            print(utils.pretty_json_summary(instance_all_region_total))
+            if not json:
+                instance_all_region_total[
+                    "percent_enforcement_v2"
+                ] = utils.convert_green(f"{enforcement:.2f}%")
+                return utils.pretty_metadata_summary([dict(instance_all_region_total)])
+            elif json:
+                instance_all_region_total["percent_enforcement_v2"] = enforcement
+                print(utils.pretty_json_summary(instance_all_region_total))
     else:
         instance_list = discover.discover_instances(ec2_client)
         if not instance_list:
@@ -86,7 +89,8 @@ def discover_metadata(json, profile: str, region: str, all_region):
             print(f"Gathering EC2 metrics for {region}...")
             instance_options = discover.get_summary(ec2_client)
             enforcement = (
-                float(instance_options["required"] / instance_options["instances"]) * 100
+                float(instance_options["required"] / instance_options["instances"])
+                * 100
             )
             if not json:
                 instance_options["percent_enforcement_v2"] = utils.convert_green(

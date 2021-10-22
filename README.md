@@ -143,6 +143,7 @@ The ability to modify the instances to use either metadata v1 or v2 and to get a
 
 ```
 Options:
+  -a, --all-region       Update IMDS across all regions in your account
   -e, --exclusion        The exclusion flag will apply to everything besides what is specified, tags or instances
   -d, --dry-run          Dry run of hardening metadata changes
   -v1, --v1              Enforces v1 of the metadata service

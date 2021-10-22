@@ -15,6 +15,7 @@ def metamodify(
     status: str,
     instance_id: str,
     dry_run: bool,
+    region: str,
 ):
     """Helper function to change instance metadata status"""
     logging.basicConfig(
@@ -42,5 +43,7 @@ def metamodify(
         except:
             status_color = convert_red("FAILED")
             status_text = "FAILED"
-        print(f"IMDS updated : {action} for {instance_id:<80} {status_color:>20}")
-        logging.info(f"imds_updated,{action},{instance_id},{status_text}")
+        print(
+            f"IMDS updated : {action} in {region} for {instance_id:<80} {status_color:>20}"
+        )
+        logging.info(f"imds_updated,{action},{region},{instance_id},{status_text}")

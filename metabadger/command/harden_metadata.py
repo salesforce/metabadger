@@ -119,6 +119,33 @@ def harden_metadata(
                 dry_run,
                 region,
             )
+    elif all_region and tags and exclusion:
+        tag_apply_count = 0
+        utils.print_yellow("All region IMDS hardening initiated")
+        for region_iterate in all_regions:
+            try:
+                region_client = aws_auth.get_boto3_client(
+                    region=region_iterate, profile=profile, service="ec2"
+                )
+                region_instance_list = discover.discover_instances(region_client)
+                for instance in region_instance_list:
+                    if not any(
+                        value in discover.get_instance_tags(region_client, instance)
+                        for value in tags
+                    ):
+                        modify.metamodify(
+                            region_client,
+                            message_default,
+                            http_option,
+                            "enabled",
+                            instance,
+                            dry_run,
+                            region_iterate,
+                        )
+            except Exception as e:
+                utils.print_yellow(f"No instance information for {region_iterate}")
+            if tag_apply_count < 1:
+                print(f"No instances with this tag found, no changes were made")
     elif exclusion and tags:
         utils.print_yellow("Excluding instances specified by tags")
         print(f"Tags: {tags}")
@@ -152,6 +179,53 @@ def harden_metadata(
                 dry_run,
                 region,
             )
+    elif all_region and tags:
+        tag_apply_count = 0
+        utils.print_yellow("All region IMDS hardening initiated")
+        for region_iterate in all_regions:
+            try:
+                region_client = aws_auth.get_boto3_client(
+                    region=region_iterate, profile=profile, service="ec2"
+                )
+                region_instance_list = discover.discover_instances(region_client)
+                for instance in region_instance_list:
+                    if any(
+                        value in discover.get_instance_tags(region_client, instance)
+                        for value in tags
+                    ):
+                        modify.metamodify(
+                            region_client,
+                            message_default,
+                            http_option,
+                            "enabled",
+                            instance,
+                            dry_run,
+                            region_iterate,
+                        )
+            except Exception as e:
+                utils.print_yellow(f"No instance information for {region_iterate}")
+            if tag_apply_count < 1:
+                print(f"No instances with this tag found, no changes were made")
+    elif all_region:
+        utils.print_yellow("All region IMDS hardening initiated")
+        for region_iterate in all_regions:
+            try:
+                region_client = aws_auth.get_boto3_client(
+                    region=region_iterate, profile=profile, service="ec2"
+                )
+                region_instance_list = discover.discover_instances(region_client)
+                for instance in region_instance_list:
+                    modify.metamodify(
+                        region_client,
+                        message_default,
+                        http_option,
+                        "enabled",
+                        instance,
+                        dry_run,
+                        region_iterate,
+                    )
+            except Exception as e:
+                utils.print_yellow(f"No instance information for {region_iterate}")
     elif tags:
         tag_apply_count = 0
         utils.print_yellow("Only applying hardening to the following tagged instances")
@@ -173,26 +247,6 @@ def harden_metadata(
                 )
         if tag_apply_count < 1:
             print(f"No instances with this tag found, no changes were made")
-    elif all_region:
-        utils.print_yellow("All region IMDS hardening initiated")
-        for region_iterate in all_regions:
-            try:
-                region_client = aws_auth.get_boto3_client(
-                    region=region_iterate, profile=profile, service="ec2"
-                )
-                region_instance_list = discover.discover_instances(region_client)
-                for instance in region_instance_list:
-                    modify.metamodify(
-                        region_client,
-                        message_default,
-                        http_option,
-                        "enabled",
-                        instance,
-                        dry_run,
-                        region_iterate,
-                    )
-            except Exception as e:
-                utils.print_yellow(f"No instance information for {region_iterate}")
     else:
         for instance in instance_list:
             modify.metamodify(

@@ -24,6 +24,7 @@ metabadger.add_command(command.disable_metadata.disable_metadata)
 metabadger.add_command(command.discover_metadata.discover_metadata)
 metabadger.add_command(command.discover_role_usage.discover_role_usage)
 metabadger.add_command(command.harden_metadata.harden_metadata)
+metabadger.add_command(command.cloudwatch_metrics.cloudwatch_metrics)
 
 
 def main():

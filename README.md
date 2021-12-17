@@ -104,6 +104,7 @@ Options:
   --help     Show this message and exit.
 
 Commands:
+  cloudwatch-metrics   Pull CloudWatch Metrics for MetadataNoToken usage
   disable-metadata     Disable the IMDS service on EC2 instances
   discover-metadata    Discover summary of IMDS service usage within EC2
   discover-role-usage  Discover summary of IAM role usage for EC2
@@ -115,6 +116,18 @@ Commands:
 
 <!-- commands -->
 
+**cloudwatch-metrics**
+
+Directly pull information about your usage of IMDSv1 with the MetadataNoToken metric in AWS CloudWatch. This command will show you instances within the last hour that are actively using v1 of the service. Note that when running this command you should have the IAM permissions to be able to view CloudWatch metrics.
+
+```
+Options:
+  -a, --all-region    Pull CloudWatch metrics across all available regions
+  -r, --region TEXT   Specify which AWS region you will perform this command
+                      in
+  -p, --profile TEXT  Specify the AWS IAM profile.
+  --help              Show this message and exit.
+```
 
 **discover-metadata**
 

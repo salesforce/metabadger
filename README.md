@@ -118,7 +118,7 @@ Commands:
 
 **cloudwatch-metrics**
 
-Directly pull information about your usage of IMDSv1 with the MetadataNoToken metric in AWS CloudWatch. This command will show you instances within the last hour that are actively using v1 of the service
+Directly pull information about your usage of IMDSv1 with the MetadataNoToken metric in AWS CloudWatch. This command will show you instances within the last hour that are actively using v1 of the service. Note that when running this command you should have the IAM permissions to be able to view CloudWatch metrics.
 
 ```
 Options:

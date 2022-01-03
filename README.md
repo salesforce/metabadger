@@ -122,11 +122,14 @@ Directly pull information about your usage of IMDSv1 with the MetadataNoToken me
 
 ```
 Options:
-  -a, --all-region    Pull CloudWatch metrics across all available regions
-  -r, --region TEXT   Specify which AWS region you will perform this command
-                      in
-  -p, --profile TEXT  Specify the AWS IAM profile.
-  --help              Show this message and exit.
+  -a, --all-region           Pull CloudWatch metrics across all available
+                             regions
+  -r, --region TEXT          Specify which AWS region you will perform this
+                             command in
+  -t, --time-period INTEGER  The CloudWatch time period in seconds used to
+                             track the IMDS v1 metric
+  -p, --profile TEXT         Specify the AWS IAM profile.
+  --help                     Show this message and exit.
 ```
 
 **discover-metadata**

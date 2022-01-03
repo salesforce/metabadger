@@ -30,10 +30,18 @@ from metabadger.shared import utils, aws_auth, discover
     help="Specify which AWS region you will perform this command in",
 )
 @click.option(
+    "--time-period",
+    "-t",
+    type=int,
+    required=False,
+    default="3600",
+    help="The CloudWatch time period in seconds used to track the IMDS v1 metric",
+)
+@click.option(
     "--profile", "-p", type=str, required=False, help="Specify the AWS IAM profile."
 )
-def cloudwatch_metrics(profile: str, region: str, all_region: bool):
-    last_hour_date_time = (datetime.utcnow() - timedelta(seconds=3600))
+def cloudwatch_metrics(profile: str, region: str, all_region: bool, time_period: int):
+    last_hour_date_time = (datetime.utcnow() - timedelta(seconds=time_period))
     current_time = datetime.utcnow()
     cloudwatch_resource = aws_auth.get_boto3_resource(
         region=region, profile=profile, service="cloudwatch"
@@ -62,7 +70,7 @@ def cloudwatch_metrics(profile: str, region: str, all_region: bool):
                             "Value": instance
                         }
                     ],
-                    StartTime=last_hour_date_time, EndTime=current_time, Period=3600, Statistics=["Sum"])
+                    StartTime=last_hour_date_time, EndTime=current_time, Period=time_period, Statistics=["Sum"])
                     if stats["Datapoints"]:
                         if stats["Datapoints"][0]["Sum"] > 0:
                             api_count = (stats["Datapoints"][0]["Sum"])
@@ -81,7 +89,7 @@ def cloudwatch_metrics(profile: str, region: str, all_region: bool):
                     "Value": instance
                 }
             ],
-            StartTime=last_hour_date_time, EndTime=current_time, Period=3600, Statistics=["Sum"])
+            StartTime=last_hour_date_time, EndTime=current_time, Period=time_period, Statistics=["Sum"])
             try:
                 if stats["Datapoints"]:
                     if stats["Datapoints"][0]["Sum"] > 0:

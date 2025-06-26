@@ -8,19 +8,12 @@ import os
 import re
 
 HERE = os.path.abspath(os.path.dirname(__file__))
-VERSION_RE = re.compile(r'''__version__ = ['"]([0-9.]+)['"]''')
+VERSION_RE = re.compile(r"""__version__ = ['"]([0-9.]+)['"]""")
 TESTS_REQUIRE = []
 
 
 def get_version():
-    init = open(
-        os.path.join(
-            HERE,
-            "metabadger",
-            "bin",
-            'version.py'
-        )
-    ).read()
+    init = open(os.path.join(HERE, "metabadger", "bin", "version.py")).read()
     return VERSION_RE.search(init).group(1)
 
 
@@ -40,15 +33,14 @@ setuptools.setup(
     long_description=get_description(),
     long_description_content_type="text/markdown",
     url="https://github.com/salesforce/metabadger",
-    packages=setuptools.find_packages(exclude=['test*', 'tmp*']),
+    packages=setuptools.find_packages(exclude=["test*", "tmp*"]),
     tests_require=TESTS_REQUIRE,
     install_requires=[
-        'boto3',
-        'botocore',
-        'click',
-        'tabulate',
-        'colorama',
-        'pandas'
+        "boto3",
+        "botocore",
+        "click",
+        "tabulate",
+        "colorama",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -57,6 +49,7 @@ setuptools.setup(
     ],
     entry_points={"console_scripts": "metabadger=metabadger.bin.cli:main"},
     zip_safe=True,
-    keywords='aws iam metadata roles policy policies privileges security',
-    python_requires='>=3.6',
+    keywords="aws iam metadata roles policy policies privileges security",
+    python_requires=">=3.6",
 )
+

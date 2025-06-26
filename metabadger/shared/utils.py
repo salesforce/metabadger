@@ -6,7 +6,6 @@
 """ Additional utils """
 import csv
 import json
-import pandas as pd
 from colorama import Fore, Back
 from tabulate import tabulate
 
@@ -52,8 +51,13 @@ def convert_yellow(string):
 
 def pretty_grid_keys(output: dict):
     """Print grid keys from dictionary"""
-    df = pd.DataFrame(output)
-    print(tabulate(df.T, headers="keys", tablefmt="grid"))
+    keys = list(output.keys())
+    values_list = list(output.values())
+    transposed_values = list(zip(*values_list))
+
+    print(
+        tabulate(transposed_values, headers=keys, tablefmt="grid", showindex="always")
+    )
 
 
 def read_from_csv(file):
